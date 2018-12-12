@@ -2,8 +2,8 @@
 
 pp is a tool that packs perl scripts and their dependencies into a stand alone executable.  https://metacpan.org/pod/pp
 
-However, it currently does not find external DLLs. These can be added to the pp call using the --link option,
-but known which DLLs to list is a source of general angst.  This tool automates that process.
+However, it currently does not find external DLLs. These can be added to the pp call using the ```--link``` option,
+but knowing which DLLs to list is a source of general angst.  This tool automates that process.
 
 The pp_autolink.pl script finds dependent DLLs and passes them to a pp call.
 
