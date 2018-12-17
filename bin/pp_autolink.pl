@@ -73,11 +73,24 @@ sub get_autolink_list {
 
     if ($OSNAME =~ /MSWin32/i) {
         #  skip anything under the C:\Windows folder
+        #  and no longer existant folders 
         my $system_root = $ENV{SystemRoot};
-        @exe_path = grep {$_ !~ m|^\Q$system_root\E|i} @exe_path;
+        @exe_path = grep {(-e $_) and $_ !~ m|^\Q$system_root\E|i} @exe_path;
         #say "PATHS: " . join ' ', @exe_path;
     }
     #  what to skip for linux or mac?
+    
+    #  get all the DLLs in the path - saves repeated searching lower down
+    my @dll_files = File::Find::Rule->file()
+                            ->name( '*.dll' )
+                            ->maxdepth(1)
+                            ->in( @exe_path );
+    my %dll_file_hash;
+    foreach my $file (@dll_files) {
+        my $basename = path($file)->basename;
+        $dll_file_hash{$basename} //= $file;  #  we only want the first in the path
+    }
+
 
     my @dlls = get_dep_dlls ($script, $no_execute_flag);
     
@@ -102,7 +115,7 @@ sub get_autolink_list {
             exit;
         }
         @dlls = $stdout =~ /DLL.Name:\s*(\S+)/gmi;
-        #  extra grep is wasteful but useful for debug 
+        #  extra grep appears wasteful but useful for debug 
         #  since we can easily disable it
         @dlls
           = sort
@@ -115,23 +128,13 @@ sub get_autolink_list {
             say 'no more DLLs';
             last DLL_CHECK;
         }
-        
-        #say join "\n", @dlls;
-        
+                
         my @dll2;
         foreach my $file (@dlls) {
             next if $searched_for{$file};
-            #  don't recurse
-            my $rule = File::Find::Rule->new->maxdepth(1);
-            $rule->file;
-            #  need case insensitive match for Windows
-            $rule->name (qr/^\Q$file\E$/i);
-            $rule->start (@exe_path);
-            #  don't search the whole path every time
-          MATCH:
-            while (my $f = $rule->match) {
-                push @dll2, $f;
-                last MATCH;
+        
+            if (exists $dll_file_hash{$file}) {
+                push @dll2, $dll_file_hash{$file};
             }
     
             $searched_for{$file}++;
