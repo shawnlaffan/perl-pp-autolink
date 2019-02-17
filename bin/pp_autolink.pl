@@ -92,7 +92,10 @@ sub get_autolink_list {
     }
 
 
-    my @dlls = get_dep_dlls ($script, $no_execute_flag);
+    #  lc is dirty and underhanded
+    #  - need to find a different approach to get
+    #  canonical file name while handling case 
+    my @dlls = map {lc $_} get_dep_dlls ($script, $no_execute_flag);
     
     #say join "\n", @dlls;
     
@@ -122,6 +125,7 @@ sub get_autolink_list {
             grep {!exists $full_list{$_}}
             grep {$_ !~ /$re_skippers/}
             uniq
+            map {lc $_}
             @dlls;
         
         if (!@dlls) {
@@ -159,6 +163,7 @@ sub get_dll_skipper_regexp {
         libstdc\+\+\-6
         libgcc_s_seh\-1
         libwinpthread\-1
+        libgcc_s_sjlj\-1
     /;
     my $sk = join '|', @skip;
     my $qr_skip = qr /^(?:$sk)$RE_DLL_EXT$/;
