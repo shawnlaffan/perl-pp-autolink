@@ -70,11 +70,14 @@ sub get_autolink_list {
     
     my $env_sep  = $OSNAME =~ /MSWin/i ? ';' : ':';
     my @exe_path = split $env_sep, $ENV{PATH};
+    
+    my @system_paths;
 
     if ($OSNAME =~ /MSWin32/i) {
         #  skip anything under the C:\Windows folder
         #  and no longer existant folders 
         my $system_root = $ENV{SystemRoot};
+        @system_paths = grep {$_ =~ m|^\Q$system_root\E|i} @exe_path;
         @exe_path = grep {(-e $_) and $_ !~ m|^\Q$system_root\E|i} @exe_path;
         #say "PATHS: " . join ' ', @exe_path;
     }
@@ -95,7 +98,9 @@ sub get_autolink_list {
     #  lc is dirty and underhanded
     #  - need to find a different approach to get
     #  canonical file name while handling case 
-    my @dlls = map {lc $_} get_dep_dlls ($script, $no_execute_flag);
+    my @dlls =
+      map {lc $_}
+      get_dep_dlls ($script, $no_execute_flag);
     
     #say join "\n", @dlls;
     
@@ -103,6 +108,8 @@ sub get_autolink_list {
     my %full_list;
     my %searched_for;
     my $iter = 0;
+    
+    my @missing;
 
   DLL_CHECK:
     while (1) {
@@ -118,6 +125,7 @@ sub get_autolink_list {
             exit;
         }
         @dlls = $stdout =~ /DLL.Name:\s*(\S+)/gmi;
+        
         #  extra grep appears wasteful but useful for debug 
         #  since we can easily disable it
         @dlls
@@ -140,6 +148,9 @@ sub get_autolink_list {
             if (exists $dll_file_hash{$file}) {
                 push @dll2, $dll_file_hash{$file};
             }
+            else {
+                push @missing, $file;
+            }
     
             $searched_for{$file}++;
         }
@@ -152,6 +163,21 @@ sub get_autolink_list {
     }
     
     my @l2 = sort keys %full_list;
+    
+    if (@missing) {
+        my @missing2;
+      MISSING:
+        foreach my $file (uniq @missing) {
+            foreach my $dir (@system_paths) {
+                next MISSING if -e "$dir/$file";
+            }
+            push @missing2, $file;
+        }
+        
+        say STDERR "\nUnable to locate these DLLS, packed script might not work: "
+        . join  ' ', sort {$a cmp $b} @missing2;
+        say '';
+    }
 
     return wantarray ? @l2 : \@l2;
 }
