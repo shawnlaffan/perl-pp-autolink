@@ -12,7 +12,7 @@ use English qw / -no_match_vars/;
 use Data::Dump       qw/ dd /;
 use File::Which      qw( which );
 use Capture::Tiny    qw/ capture /;
-use List::Util       qw( uniq );
+use List::Util       qw( uniq any );
 use File::Find::Rule qw/ rule find /;
 use Path::Tiny       qw/ path /;
 use Cwd              qw/ abs_path /;
@@ -168,9 +168,8 @@ sub get_autolink_list {
         my @missing2;
       MISSING:
         foreach my $file (uniq @missing) {
-            foreach my $dir (@system_paths) {
-                next MISSING if -e "$dir/$file";
-            }
+            next MISSING
+              if any {-e "$_/$file"} @system_paths;
             push @missing2, $file;
         }
         
