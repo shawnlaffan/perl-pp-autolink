@@ -7,7 +7,7 @@ but knowing which DLLs to list is a source of general angst.  This tool automate
 
 The pp_autolink.pl script finds dependent DLLs and passes them to a pp call.
 
-It has been tested for Windows machines only so far.  It is untested on linux, and is unlikely to work on macs.  
+It has been tested for Windows machines only so far.  It is untested on linux, and is unlikely to work on macs.  Pull requests are welcome.
 
 The argument list is the same as for pp.  
 
@@ -15,7 +15,7 @@ The argument list is the same as for pp.
 perl pp_autolink.pl -o some.exe some_script.pl
 ```
 
-Note that currently only one script is supported, and it must be the last entry in the command.  
+Note that currently only one script is supported, and it must be the last argument in the command.  
 
 
 ### Acknowledgements ###
