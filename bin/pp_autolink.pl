@@ -6,6 +6,8 @@ use 5.020;
 use warnings;
 use strict;
 
+our $VERSION = '1.00';
+
 use Carp;
 use English qw / -no_match_vars/;
 
@@ -21,7 +23,7 @@ use Module::ScanDeps;
 
 use Config;
 
-my $RE_DLL_EXT = qr/\.$Config::Config{so}/i;
+my $RE_DLL_EXT = qr/\.$Config::Config{so}$/i;
 
 #  messy arg handling - ideally would use a GetOpts variant that allows
 #  pass through to pp without needing to set them after --
@@ -230,14 +232,18 @@ sub get_dep_dlls {
     my $inc_path_re = qr /^($paths)/i;
     #say $inc_path_re;
 
+    #say "DEPS HASH:" . join "\n", keys %$deps_hash;
     my %dll_hash;
+    my @aliens;
     foreach my $package (keys %$deps_hash) {
-        #  could access {uses} directly, but this helps with debug
         my $details = $deps_hash->{$package};
-        my $uses    = $details->{uses};
-        next if !$uses;
+        my @uses = @{$details->{uses} // []};
+        if ($details->{key} =~ m{^Alien/.+\.pm$}) {
+            push @aliens, $package;
+        }
+        next if !@uses;
         
-        foreach my $dll (grep {$_ =~ $RE_DLL_EXT} @$uses) {
+        foreach my $dll (grep {$_ =~ $RE_DLL_EXT} @uses) {
             my $dll_path = $deps_hash->{$package}{file};
             #  Remove trailing component of path after /lib/
             if ($dll_path =~ m/$inc_path_re/) {
@@ -255,6 +261,27 @@ sub get_dep_dlls {
             $dll_hash{$dll_path}++;
         }
     }
+    #  handle aliens
+  ALIEN:
+    foreach my $package (@aliens) {
+        next if $package =~ m{^Alien/(Base|Build)};
+        my $package_inc_name = $package;
+        $package =~ s{/}{::}g;
+        $package =~ s/\.pm$//;
+        if (!$INC{$package_inc_name}) {
+            #  if the execute flag was off then try to load the package
+            eval "require $package";
+            if ($@) {
+                say "Unable to require $package, skipping (error is $@)";
+                next ALIEN;
+            }
+        }
+        next ALIEN if !$package->can ('dynamic_libs');  # some older aliens might not be able to
+        say "Finding dynamic libs for $package";
+        foreach my $path ($package->dynamic_libs) {
+            $dll_hash{$path}++;
+        }
+    } 
     
     my @dll_list = sort keys %dll_hash;
     return wantarray ? @dll_list : \@dll_list;
