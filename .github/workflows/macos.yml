@@ -78,20 +78,20 @@ jobs:
           cpanm --notest Env
       
       
-      - name: Test pack
-        run: |
-          echo Running perl dynamic_libs check
-          perl -e 'use 5.020; use Gtk2; say "1"'
-          perl bin/pp_autolink.pl -o checkpp tester.pl
-          echo Running checkpp dynamic libs check
-          ./checkpp
-          echo Running checkpp with /usr/local dirs out of the way
-          sudo mv /usr/local/opt /usr/local/optx
-          sudo mv /usr/local/Cellar /usr/local/Cellarx
-          ./checkpp
-          echo Putting /usr/local dirs back
-          sudo mv /usr/local/optx /usr/local/opt
-          sudo mv /usr/local/Cellarx /usr/local/Cellar
+      #- name: Test pack
+      #  run: |
+      #    echo Running perl dynamic_libs check
+      #    perl -e 'use 5.020; use Gtk2; say "1"'
+      #    perl bin/pp_autolink.pl -o checkpp tester.pl
+      #    echo Running checkpp dynamic libs check
+      #    ./checkpp
+      #    echo Running checkpp with /usr/local dirs out of the way
+      #    sudo mv /usr/local/opt /usr/local/optx
+      #    sudo mv /usr/local/Cellar /usr/local/Cellarx
+      #    ./checkpp
+      #    echo Putting /usr/local dirs back
+      #    sudo mv /usr/local/optx /usr/local/opt
+      #    sudo mv /usr/local/Cellarx /usr/local/Cellar
           
         
       - name: Upload checkpp artefact
