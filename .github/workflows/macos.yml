@@ -31,7 +31,7 @@ jobs:
         run: brew install pkgconfig
         
       - name: Install Gtk etc
-        run: brew install gdk-pixbuf pango gtk+
+        run: brew install gdk-pixbuf pango gtk+ gdal
       
       - name: Set up Perl
         run: |
@@ -81,7 +81,9 @@ jobs:
       - name: Test pack
         run: |
           echo Running perl dynamic_libs check
-          perl bin/pp_autolink.pl -o checkpp tester.pl
+          #  do we pack libgdal
+          libgnomecanvas=`find /usr/local -name libgdal.dylib -print`
+          perl bin/pp_autolink.pl --link $libgnomecanvas -o checkpp tester.pl
           echo Running checkpp dynamic libs check
           ./checkpp
           echo Running checkpp with /usr/local dirs out of the way
