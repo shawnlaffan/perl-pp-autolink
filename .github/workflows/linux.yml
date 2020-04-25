@@ -46,7 +46,7 @@ jobs:
         run: |
           apt-get update
           apt-get --yes --force-yes install libcairo2-dev libpango1.0-dev libgtk2.0-dev libgdal-dev
-          ldd /usr/lib/x86_64-linux-gnu/libgdal.so
+          ldd `find /usr/lib -name 'libgdal*.so' -print | head -1`
 
       - name: perl -V
         run: |
@@ -92,7 +92,7 @@ jobs:
         run: |
           echo Running perl dynamic_libs check
           #  do we pack libproj
-          export libtopack=`find /usr/lib -name libgdal.so -print`
+          export libtopack=`find /usr/lib -name 'libgdal*.so' -print | head -1`
           echo LIBGDAL is at $libtopack
           #perl bin/pp_autolink.pl -o checkpp tester.pl
           perl bin/pp_autolink.pl --link $libtopack -o checkpp tester.pl
