@@ -301,6 +301,9 @@ sub get_autolink_list_ldd {
               or $name =~ m{^lib(?:gcc_s|stdc\+\+)\.}  #  should already be packed
               ) {
                 warn "skipping $name";
+                warn "re1" if $path =~ m{^(?:/usr)?/lib(?:32|64)?/};
+                warn "re2" if $path =~ m{\Qdarwin-thread-multi-2level/auto/share/dist/Alien\E};
+                warn "re3" if $name =~ m{^lib(?:gcc_s|stdc\+\+)\.};
                 delete $dlls{$name};
             }
         }
