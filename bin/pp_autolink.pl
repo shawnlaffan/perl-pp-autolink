@@ -30,6 +30,8 @@ if ($^O eq 'darwin') {
     $get_autolink_list_sub = \&get_autolink_list_macos; 
 }
 
+use constant CASE_INSENSITIVE_OS => ($^O eq 'MSWin32');
+
 #  messy arg handling - ideally would use a GetOpts variant that allows
 #  pass through to pp without needing to set them after --
 #  Should also trap any scandeps args (if diff from pp).
@@ -101,6 +103,11 @@ sub get_autolink_list {
                             ->name( "*.$Config::Config{so}" )
                             ->maxdepth(1)
                             ->in( @exe_path );
+
+    if (CASE_INSENSITIVE_OS) {
+        @dll_files = map {lc $_} @dll_files;
+    }
+
     my %dll_file_hash;
     foreach my $file (@dll_files) {
         my $basename = path($file)->basename;
@@ -110,12 +117,15 @@ sub get_autolink_list {
 
     #  lc is dirty and underhanded
     #  - need to find a different approach to get
-    #  canonical file name while handling case 
+    #  canonical file name while handling case,
+    #  poss Win32::GetLongPathName
     my @dlls = @argv_linkers;
     push @dlls,
-      map {lc $_}
       get_dep_dlls ($script, $no_execute_flag);
-    
+
+    if (CASE_INSENSITIVE_OS) {
+        @dlls = map {lc $_} @dlls;
+    }
     #say join "\n", @dlls;
     
     my $re_skippers = get_dll_skipper_regexp();
@@ -140,6 +150,10 @@ sub get_autolink_list {
         }
         @dlls = $stdout =~ /DLL.Name:\s*(\S+)/gmi;
         
+        if (CASE_INSENSITIVE_OS) {
+            @dlls = map {lc $_} @dlls;
+        }
+
         #  extra grep appears wasteful but useful for debug 
         #  since we can easily disable it
         @dlls
@@ -147,7 +161,6 @@ sub get_autolink_list {
             grep {!exists $full_list{$_}}
             grep {$_ !~ /$re_skippers/}
             uniq
-            map {lc $_}
             @dlls;
         
         if (!@dlls) {
