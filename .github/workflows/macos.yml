@@ -82,8 +82,8 @@ jobs:
         run: |
           echo Running perl dynamic_libs check
           #  do we pack libgdal
-          libgnomecanvas=`find /usr/local -name libgdal.dylib -print`
-          perl bin/pp_autolink.pl --link $libgnomecanvas -o checkpp tester.pl
+          libgdal=`find /usr/local/opt -name libgdal.dylib -print`
+          perl bin/pp_autolink.pl --link $libgdal -o checkpp tester.pl
           echo Running checkpp dynamic libs check
           ./checkpp
           echo Running checkpp with /usr/local dirs out of the way
