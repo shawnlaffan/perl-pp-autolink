@@ -30,6 +30,11 @@ if ($^O eq 'darwin') {
     $get_autolink_list_sub = \&get_autolink_list_macos; 
 }
 
+my $ldd_exe = which('ldd');
+if ($ldd_exe) {
+    $get_autolink_list_sub = \&get_autolink_list_ldd;
+}
+
 use constant CASE_INSENSITIVE_OS => ($^O eq 'MSWin32');
 
 #  messy arg handling - ideally would use a GetOpts variant that allows
@@ -251,6 +256,62 @@ sub get_autolink_list_macos {
     
     return wantarray ? @libs_to_pack : \@libs_to_pack;
 }
+
+sub get_autolink_list_ldd {
+    my ($script, $no_execute_flag) = @_;
+    
+    my @bundle_list = get_dep_dlls ($script, $no_execute_flag);
+    my @libs_to_pack;
+    my %seen;
+
+    my @target_libs = (
+        @argv_linkers,
+        @bundle_list,
+    );
+    while (my $lib = shift @target_libs) {
+        say "ldd $lib";
+        my $out = qx /ldd $lib/;
+        warn qq["ldd $lib" failed\n]
+          if not $? == 0;
+          
+        #  much of this logic is from PAR::Packer
+        #  https://github.com/rschupp/PAR-Packer/blob/04a133b034448adeb5444af1941a5d7947d8cafb/myldr/find_files_to_embed/ldd.pl#L47
+        my %dlls = $out =~ /^ \s* (\S+) \s* => \s* ( \/ \S+ ) /gmx;
+
+      DLL:
+        foreach my $name (keys %dlls) {
+            if ($seen{$name}) {
+                delete $dlls{$name};
+                next DLL;
+            }
+            
+            my $path = $dlls{$name};
+            if (not -r $path) {
+                warn qq[# ldd reported strange path: $path\n];
+                delete $dlls{$name};
+                next DLL;
+            }
+            #  system lib
+            if ($path =~ m{^(?:/usr)?/lib(?:32|64)?/} ) {
+                delete $dlls{$name};
+                next DLL;
+            }
+            if ($path =~ m{\Qdarwin-thread-multi-2level/auto/share/dist/Alien\E}) {
+                #  another alien
+                delete $dlls{$name};
+                next DLL;
+            }
+            
+            $seen{$name}++;
+        }
+        push @libs_to_pack, values %dlls;
+    }
+
+    @libs_to_pack = sort @libs_to_pack;
+    
+    return wantarray ? @libs_to_pack : \@libs_to_pack;
+}
+
 
 #  needed for gdkpixbuf, when we support it 
 sub find_so_files {
