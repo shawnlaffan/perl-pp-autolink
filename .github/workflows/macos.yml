@@ -68,6 +68,16 @@ jobs:
           cpanm --notest PAR::Packer
           cpanm --notest File::BaseDir
           cpanm --notest File::Find::Rule
+          cpanm --notest Data::Dump
+          cpanm --notest File::Which
+          cpanm --notest Capture::Tiny
+          cpanm --notest List::Util
+          cpanm --notest File::Find::Rule
+          cpanm --notest Path::Tiny
+          cpanm --notest Cwd
+          cpanm --notest File::Temp
+          cpanm --notest Module::ScanDeps
+          cpanm --notest Env
       
       
       - name: Test pack
