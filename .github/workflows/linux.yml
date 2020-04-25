@@ -90,10 +90,12 @@ jobs:
         run: |
           echo Running perl dynamic_libs check
           #  do we pack libproj
-          #find /usr/local/Cellar -name libproj.dylib -print
-          export libproj=`find /usr/local/Cellar -name libproj.dylib -print`
-          echo LIBPROJ is at $libproj
-          perl bin/pp_autolink.pl --link $libproj -o checkpp tester.pl
+          #find /usr/local -name libproj.so -print
+          #  dpkg -L libproj-dev | grep libproj
+          #export libproj=`find /usr/local -name libproj.so -print`
+          #echo LIBPROJ is at $libproj
+          perl bin/pp_autolink.pl -o checkpp tester.pl
+          #perl bin/pp_autolink.pl --link $libproj -o checkpp tester.pl
           echo Running checkpp dynamic libs check
           ./checkpp
           echo Running checkpp with /usr/local dirs out of the way
