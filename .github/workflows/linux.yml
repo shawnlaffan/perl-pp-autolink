@@ -45,7 +45,7 @@ jobs:
       - name: Install Gtk etc
         run: |
           apt-get update
-          apt-get install libgtk2.0-dev proj
+          apt-get install libgtk2.0-dev libproj-dev
 
       - name: perl -V
         run: perl -V
