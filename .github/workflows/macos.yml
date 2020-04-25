@@ -1,0 +1,98 @@
+name: macos
+
+on:
+  push:
+    branches:
+      - '*'
+    tags-ignore:
+      - '*'
+  pull_request:
+
+env:
+  PERL5LIB: /Users/runner/perl5/lib/perl5
+  PERL_LOCAL_LIB_ROOT: /Users/runner/perl5
+  PERL_MB_OPT: --install_base /Users/runner/perl5
+  PERL_MM_OPT: INSTALL_BASE=/Users/runner/perl5
+
+jobs:
+  perl:
+
+    runs-on: macOS-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Probe wd
+        run: |
+          pwd
+          ls -l          
+
+      - name: Install pkgconfig
+        run: brew install pkgconfig
+        
+      - name: Install Gtk etc
+        run: brew install gdk-pixbuf pango gtk+ gtk+3
+      
+      - name: Set up Perl
+        run: |
+          brew install perl
+          curl https://cpanmin.us | perl - App::cpanminus -n
+          echo "##[add-path]/Users/runner/perl5/bin"
+
+      - name: perl -V
+        run: perl -V
+
+      - name: Prepare for cache
+        run: |
+          perl -V > perlversion.txt
+          #  change the checksum so we refresh the cache
+          echo 'with shared Alien installs' >> perlversion.txt
+          ls -l perlversion.txt
+
+      #- name: clear cache
+      #  run: rm ~/perl5/${{ runner.os }}-build-${{ hashFiles('perlversion.txt') }}
+
+      - name: Cache CPAN modules
+        uses: actions/cache@v1
+        with:
+          path: ~/perl5
+          key: ${{ runner.os }}-build-${{ hashFiles('perlversion.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ hashFiles('perlversion.txt') }}
+
+      - name: Install cpan deps 
+        run: |
+          #  no share install for Alien::MSYS
+          cpanm --notest Alien::MSYS
+          cpanm --notest ExtUtils::PkgConfig
+          cpanm --notest ExtUtils::Depends
+          cpanm --notest Gtk2
+          cpanm --notest PAR::Packer
+          cpanm --notest File::BaseDir
+          cpanm --notest File::Find::Rule
+      
+      
+      - name: Test pack
+        run: |
+          #ls -l /usr/local/lib/../Cellar/gdal/2.4.4/lib/libgdal.20.dylib
+          #ls -l /usr/local/opt/gdal/2.4.4/lib/libgdal.20.dylib
+          echo Running perl dynamic_libs check
+          perl -e 'use 5.020; use Gtk2; say "1"'
+          bin/pp_autolink.pl -o checkpp tester.pl
+          echo Running checkpp dynamic libs check
+          ./checkpp
+          echo Running checkpp with /usr/local dirs out of the way
+          sudo mv /usr/local/opt /usr/local/optx
+          sudo mv /usr/local/Cellar /usr/local/Cellarx
+          ./checkpp
+          echo Putting /usr/local dirs back
+          sudo mv /usr/local/optx /usr/local/opt
+          sudo mv /usr/local/Cellarx /usr/local/Cellar
+          
+        
+      - name: Upload checkpp artefact
+        uses: actions/upload-artifact@v1
+        with:
+          name: checkpp
+          #path: ${DMG_FILE_NAME}
+          path: ./checkpp
