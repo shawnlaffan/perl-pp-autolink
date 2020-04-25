@@ -82,7 +82,7 @@ jobs:
         run: |
           echo Running perl dynamic_libs check
           #  do we pack libproj
-          find /usr/local/Cellar -name libproj.dylib -print
+          #find /usr/local/Cellar -name libproj.dylib -print
           export libproj=`find /usr/local/Cellar -name libproj.dylib -print`
           echo LIBPROJ is at $libproj
           perl bin/pp_autolink.pl --link $libproj -o checkpp tester.pl
@@ -95,6 +95,7 @@ jobs:
           echo Putting /usr/local dirs back
           sudo mv /usr/local/optx /usr/local/opt
           sudo mv /usr/local/Cellarx /usr/local/Cellar
+          echo Dylib files in packed archive:
           unzip -l checkpp | grep dylib
         
       - name: Upload checkpp artefact
