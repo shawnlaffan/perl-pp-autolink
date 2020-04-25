@@ -289,7 +289,7 @@ sub get_autolink_list_ldd {
 
             my $path = path($dlls{$name})->realpath;
             
-            say "Checking $name => $path";
+            #say "Checking $name => $path";
             
             if (not -r $path) {
                 warn qq[# ldd reported strange path: $path\n];
@@ -298,12 +298,12 @@ sub get_autolink_list_ldd {
             elsif (
                  $path =~ m{^(?:/usr)?/lib(?:32|64)/}  #  system lib
               or $path =~ m{\Qdarwin-thread-multi-2level/auto/share/dist/Alien\E}  #  alien in share
-              or $name =~ m{^lib(?:gcc_s|stdc\+\+)\.}  #  should already be packed
+              or $name =~ m{^lib(?:c|gcc_s|stdc\+\+)\.}  #  should already be packed?
               ) {
-                warn "skipping $name => $path";
-                warn "re1" if $path =~ m{^(?:/usr)?/lib(?:32|64)/};
-                warn "re2" if $path =~ m{\Qdarwin-thread-multi-2level/auto/share/dist/Alien\E};
-                warn "re3" if $name =~ m{^lib(?:gcc_s|stdc\+\+)\.};
+                #warn "skipping $name => $path";
+                #warn "re1" if $path =~ m{^(?:/usr)?/lib(?:32|64)/};
+                #warn "re2" if $path =~ m{\Qdarwin-thread-multi-2level/auto/share/dist/Alien\E};
+                #warn "re3" if $name =~ m{^lib(?:gcc_s|stdc\+\+)\.};
                 delete $dlls{$name};
             }
         }
