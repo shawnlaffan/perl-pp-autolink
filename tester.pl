@@ -10,6 +10,6 @@ BEGIN {
 };
 
 use Gtk2;
-Gtk2->init;
+#Gtk2->init;
 
 print "1\n";
