@@ -73,8 +73,6 @@ jobs:
 
       - name: Install cpan deps 
         run: |
-          cpanm --notest -v ExtUtils::PkgConfig
-          cpanm --notest -v ExtUtils::Depends
           cpanm --notest Gtk2
           cpanm --notest PAR::Packer
           cpanm --notest File::BaseDir
@@ -93,12 +91,10 @@ jobs:
         run: |
           echo Running perl dynamic_libs check
           #  do we pack libproj
-          #find /usr/local -name libproj.so -print
-          dpkg -L libproj-dev | grep libproj
-          #export libproj=`find /usr/local -name libproj.so -print`
-          #echo LIBPROJ is at $libproj
-          perl bin/pp_autolink.pl -o checkpp tester.pl
-          #perl bin/pp_autolink.pl --link $libproj -o checkpp tester.pl
+          export libproj=`find /usr/lib -name libproj.so -print`
+          echo LIBPROJ is at $libproj
+          #perl bin/pp_autolink.pl -o checkpp tester.pl
+          perl bin/pp_autolink.pl --link $libproj -o checkpp tester.pl
           echo Running checkpp dynamic libs check
           ./checkpp
           echo Dylib files in packed archive:
