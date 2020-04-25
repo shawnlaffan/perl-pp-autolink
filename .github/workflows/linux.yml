@@ -46,6 +46,7 @@ jobs:
         run: |
           apt-get update
           apt-get --yes --force-yes install libcairo2-dev libpango1.0-dev libgtk2.0-dev libproj-dev
+          ldd /usr/lib/x86_64-linux-gnu/libproj.so
 
       - name: perl -V
         run: |
