@@ -6,7 +6,7 @@ on:
       - '*'
     tags-ignore:
       - '*'
-  pull_request: 
+  pull_request:
 
 env:
   PERL5LIB: /Users/runner/perl5/lib/perl5
@@ -62,8 +62,6 @@ jobs:
 
       - name: Install cpan deps 
         run: |
-          #  no share install for Alien::MSYS
-          cpanm --notest Alien::MSYS
           cpanm --notest ExtUtils::PkgConfig
           cpanm --notest ExtUtils::Depends
           cpanm --notest Gtk2
@@ -74,11 +72,9 @@ jobs:
       
       - name: Test pack
         run: |
-          #ls -l /usr/local/lib/../Cellar/gdal/2.4.4/lib/libgdal.20.dylib
-          #ls -l /usr/local/opt/gdal/2.4.4/lib/libgdal.20.dylib
           echo Running perl dynamic_libs check
           perl -e 'use 5.020; use Gtk2; say "1"'
-          bin/pp_autolink.pl -o checkpp tester.pl
+          perl bin/pp_autolink.pl -o checkpp tester.pl
           echo Running checkpp dynamic libs check
           ./checkpp
           echo Running checkpp with /usr/local dirs out of the way
