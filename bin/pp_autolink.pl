@@ -9,15 +9,13 @@ use strict;
 our $VERSION = '2.00';
 
 use Carp;
-use English qw / -no_match_vars/;
+use English qw / -no_match_vars /;
 
-use Data::Dump       qw/ dd /;
 use File::Which      qw( which );
 use Capture::Tiny    qw/ capture /;
 use List::Util       qw( uniq any );
 use File::Find::Rule qw/ rule find /;
 use Path::Tiny       qw/ path /;
-use Cwd              qw/ abs_path /;
 use File::Temp       qw/ tempfile /;
 use Module::ScanDeps;
 use Env qw /@PATH/;
@@ -38,7 +36,7 @@ if ($^O eq 'darwin') {
 #  pp also allows multiple .pl files.
 my $script_fullname = $ARGV[-1] or die 'no input file specified';
 #  does not handle -x as a value for some other arg like --somearg -x
-my $no_execute_flag = not grep {$_ eq '-x'} @ARGV;  
+my $no_execute_flag = not grep {$_ eq '-x'} @ARGV;
 
 #  Try caching - scandeps will execute for us, and then we use a cache file
 #  Nope, did not get it to work, so disable for now
