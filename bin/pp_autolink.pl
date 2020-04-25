@@ -98,7 +98,7 @@ sub get_autolink_list {
     
     #  get all the DLLs in the path - saves repeated searching lower down
     my @dll_files = File::Find::Rule->file()
-                            ->name( '*.dll' )
+                            ->name( "*.$Config::Config{so}" )
                             ->maxdepth(1)
                             ->in( @exe_path );
     my %dll_file_hash;
