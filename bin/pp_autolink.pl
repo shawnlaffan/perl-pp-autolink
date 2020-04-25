@@ -300,6 +300,7 @@ sub get_autolink_list_ldd {
               or $path =~ m{\Qdarwin-thread-multi-2level/auto/share/dist/Alien\E}  #  alien in share
               or $name =~ m{^lib(?:gcc_s|stdc\+\+)\.}  #  should already be packed
               ) {
+                warn "skipping $name";
                 delete $dlls{$name};
             }
         }
