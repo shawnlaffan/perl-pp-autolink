@@ -285,25 +285,25 @@ sub get_autolink_list_ldd {
                 next DLL;
             }
             
-            my $path = $dlls{$name};
+            $seen{$name}++;
+
+            my $path = path($dlls{$name})->realpath;
+            
+            #say "Checking $name => $path";
+            
             if (not -r $path) {
                 warn qq[# ldd reported strange path: $path\n];
                 delete $dlls{$name};
-                next DLL;
             }
-            #  system lib
-            if ($path =~ m{^(?:/usr)?/lib(?:32|64)?/} ) {
+            elsif (
+                 $path =~ m{^(?:/usr)?/lib(?:32|64)?/}  #  system lib
+              or $path =~ m{\Qdarwin-thread-multi-2level/auto/share/dist/Alien\E}  #  alien in share
+              or $name =~ m{^lib(?:gcc_s|stdc\+\+)\.}  #  should already be packed
+              ) {
                 delete $dlls{$name};
-                next DLL;
             }
-            if ($path =~ m{\Qdarwin-thread-multi-2level/auto/share/dist/Alien\E}) {
-                #  another alien
-                delete $dlls{$name};
-                next DLL;
-            }
-            
-            $seen{$name}++;
         }
+        push @target_libs, values %dlls;
         push @libs_to_pack, values %dlls;
     }
 
