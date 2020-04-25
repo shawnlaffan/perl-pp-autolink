@@ -38,6 +38,13 @@ my $script_fullname = $ARGV[-1] or die 'no input file specified';
 #  does not handle -x as a value for some other arg like --somearg -x
 my $no_execute_flag = not grep {$_ eq '-x'} @ARGV;
 
+#  should use a getopt module for this 
+my @argv_linkers;
+foreach my $idx (0 .. $#ARGV) {
+    next if $ARGV[$idx] ne '--link';
+    push @argv_linkers, $ARGV[$idx+1];
+}
+
 #  Try caching - scandeps will execute for us, and then we use a cache file
 #  Nope, did not get it to work, so disable for now
 #my @args_for_pp = grep {$_ ne '-x'} @ARGV;
@@ -104,7 +111,8 @@ sub get_autolink_list {
     #  lc is dirty and underhanded
     #  - need to find a different approach to get
     #  canonical file name while handling case 
-    my @dlls =
+    my @dlls = @argv_linkers;
+    push @dlls,
       map {lc $_}
       get_dep_dlls ($script, $no_execute_flag);
     
@@ -193,13 +201,11 @@ sub get_autolink_list_macos {
     my $OTOOL = which('otool')  or die "otool not found";
     
     my @bundle_list = get_dep_dlls ($script, $no_execute_flag);
-    my @libs_to_pack = (
-        #@hard_coded_dylibs,  #  need to support --link args ourselves
-    );
+    my @libs_to_pack;
     my %seen;
 
     my @target_libs = (
-        #@hard_coded_dylibs,
+        @argv_linkers,
         @bundle_list,
         #'/usr/local/opt/libffi/lib/libffi.6.dylib',
         #($pixbuf_query_loader,
