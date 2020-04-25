@@ -82,7 +82,9 @@ jobs:
         run: |
           echo Running perl dynamic_libs check
           #  do we pack libgdal
-          libgdal=`find /usr/local/opt -name libgdal.dylib -print`
+          find /usr/local/opt -name 'libgdal20*.dylib' -print
+          export libgdal=`find /usr/local/opt -name libgdal20.dylib -print`
+          echo $libgdal
           perl bin/pp_autolink.pl --link $libgdal -o checkpp tester.pl
           echo Running checkpp dynamic libs check
           ./checkpp
