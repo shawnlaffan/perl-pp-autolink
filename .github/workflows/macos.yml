@@ -31,7 +31,7 @@ jobs:
         run: brew install pkgconfig
         
       - name: Install Gtk etc
-        run: brew install gdk-pixbuf pango gtk+ gdal
+        run: brew install gdk-pixbuf pango gtk+ proj
       
       - name: Set up Perl
         run: |
@@ -81,9 +81,9 @@ jobs:
       - name: Test pack
         run: |
           echo Running perl dynamic_libs check
-          #  do we pack libgdal
-          find /usr/local/opt -name 'libgdal*' -print
-          export libgdal=`find /usr/local/opt -name libgdal*.dylib -print | head -1`
+          #  do we pack libproj
+          find /usr/local/opt -name '*proj*' -print
+          export libgdal=`find /usr/local/opt -name '*proj* -print | head -1`
           echo LIBGDAL is at $libgdal
           perl bin/pp_autolink.pl --link $libgdal -o checkpp tester.pl
           echo Running checkpp dynamic libs check
