@@ -12,4 +12,4 @@ BEGIN {
 use Gtk2;
 Gtk2->init;
 
-print "1";
+print "1\n";
