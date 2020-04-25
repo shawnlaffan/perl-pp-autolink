@@ -289,7 +289,7 @@ sub get_autolink_list_ldd {
 
             my $path = path($dlls{$name})->realpath;
             
-            #say "Checking $name => $path";
+            say "Checking $name => $path";
             
             if (not -r $path) {
                 warn qq[# ldd reported strange path: $path\n];
