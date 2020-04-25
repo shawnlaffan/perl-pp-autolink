@@ -45,8 +45,8 @@ jobs:
       - name: Install Gtk etc
         run: |
           apt-get update
-          apt-get --yes --force-yes install libcairo2-dev libpango1.0-dev libgtk2.0-dev libproj-dev
-          ldd /usr/lib/x86_64-linux-gnu/libproj.so
+          apt-get --yes --force-yes install libcairo2-dev libpango1.0-dev libgtk2.0-dev libgdal-dev
+          ldd /usr/lib/x86_64-linux-gnu/libgdal.so
 
       - name: perl -V
         run: |
@@ -92,10 +92,10 @@ jobs:
         run: |
           echo Running perl dynamic_libs check
           #  do we pack libproj
-          export libproj=`find /usr/lib -name libproj.so -print`
-          echo LIBPROJ is at $libproj
+          export libtopack=`find /usr/lib -name libgdal.so -print`
+          echo LIBGDAL is at $libtopack
           #perl bin/pp_autolink.pl -o checkpp tester.pl
-          perl bin/pp_autolink.pl --link $libproj -o checkpp tester.pl
+          perl bin/pp_autolink.pl --link $libtopack -o checkpp tester.pl
           echo Running checkpp dynamic libs check
           ./checkpp
           echo Dylib files in packed archive:
