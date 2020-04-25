@@ -17,7 +17,16 @@ The argument list is the same as for pp.
 perl pp_autolink.pl -o some.exe some_script.pl
 ```
 
+It will also scan files passed as --link arguments
+
+```perl
+perl pp_autolink.pl -o some.exe --link /path/to/some.dylib some_script.pl
+```
+
+
 Note that currently only one script is supported, and it must be the last argument in the command.  
+
+PRs are welcome.  
 
 
 ### Acknowledgements ###
