@@ -91,7 +91,7 @@ jobs:
           echo Putting /usr/local dirs back
           sudo mv /usr/local/optx /usr/local/opt
           sudo mv /usr/local/Cellarx /usr/local/Cellar
-          
+          unzip -l checkpp | grep dylib
         
       - name: Upload checkpp artefact
         uses: actions/upload-artifact@v1
