@@ -6,7 +6,7 @@ use 5.020;
 use warnings;
 use strict;
 
-our $VERSION = '1.00';
+our $VERSION = '2.00';
 
 use Carp;
 use English qw / -no_match_vars/;
@@ -20,10 +20,17 @@ use Path::Tiny       qw/ path /;
 use Cwd              qw/ abs_path /;
 use File::Temp       qw/ tempfile /;
 use Module::ScanDeps;
+use Env qw /@PATH/;
 
 use Config;
 
 my $RE_DLL_EXT = qr/\.$Config::Config{so}$/i;
+my $get_autolink_list_sub = \&get_autolink_list;
+
+if ($^O eq 'darwin') {
+    $RE_DLL_EXT = qr/\.($Config::Config{so}|bundle)$/i;
+    $get_autolink_list_sub = \&get_autolink_list_macos; 
+}
 
 #  messy arg handling - ideally would use a GetOpts variant that allows
 #  pass through to pp without needing to set them after --
@@ -48,7 +55,7 @@ die "Script $script_fullname does not have a .pl extension"
   if !$script_fullname =~ /\.pl$/;
 
 my @links = map {('--link' => $_)}
-            get_autolink_list ($script_fullname, $no_execute_flag);
+            $get_autolink_list_sub->($script_fullname, $no_execute_flag);
 
 say 'Detected link list: ' . join ' ', @links;
 
@@ -70,8 +77,7 @@ sub get_autolink_list {
 
     my $OBJDUMP   = which('objdump')  or die "objdump not found";
     
-    my $env_sep  = $OSNAME =~ /MSWin/i ? ';' : ':';
-    my @exe_path = split $env_sep, $ENV{PATH};
+    my @exe_path = @PATH;
     
     my @system_paths;
 
@@ -182,6 +188,64 @@ sub get_autolink_list {
 
     return wantarray ? @l2 : \@l2;
 }
+
+sub get_autolink_list_macos {
+    my ($script, $no_execute_flag) = @_;
+
+    my $OTOOL = which('otool')  or die "otool not found";
+    
+    my @bundle_list = get_dep_dlls ($script, $no_execute_flag);
+    my @libs_to_pack = (
+        #@hard_coded_dylibs,  #  need to support --link args ourselves
+    );
+    my %seen;
+
+    my @target_libs = (
+        #@hard_coded_dylibs,
+        @bundle_list,
+        #'/usr/local/opt/libffi/lib/libffi.6.dylib',
+        #($pixbuf_query_loader,
+        #find_so_files ($gdk_pixbuf_dir) ) if $pack_gdkpixbuf,
+    );
+    while (my $lib = shift @target_libs) {
+        say "otool -L $lib";
+        my @lib_arr = qx /otool -L $lib/;
+        warn qq["otool -L $lib" failed\n]
+          if not $? == 0;
+        shift @lib_arr;  #  first result is dylib we called otool on
+        foreach my $line (@lib_arr) {
+            $line =~ /^\s+(.+?)\s/;
+            my $dylib = $1;
+            next if $seen{$dylib};
+            next if $dylib =~ m{^/System};  #  skip system libs
+            #next if $dylib =~ m{^/usr/lib/system};
+            next if $dylib =~ m{^/usr/lib/libSystem};
+            next if $dylib =~ m{^/usr/lib/};
+            next if $dylib =~ m{\Qdarwin-thread-multi-2level/auto/share/dist/Alien\E};  #  another alien
+            say "adding $dylib for $lib";
+            push @libs_to_pack, $dylib;
+            $seen{$dylib}++;
+            #  add this dylib to the search set
+            push @target_libs, $dylib;
+        }
+    }
+
+    @libs_to_pack = sort @libs_to_pack;
+    
+    return wantarray ? @libs_to_pack : \@libs_to_pack;
+}
+
+#  needed for gdkpixbuf, when we support it 
+sub find_so_files {
+    my $target_dir = shift or die;
+
+    my @files = File::Find::Rule->extras({ follow => 1, follow_skip=>2 })
+                             ->file()
+                             ->name( qr/\.so$/ )
+                             ->in( $target_dir );
+    return wantarray ? @files : \@files;
+}
+
 
 sub get_dll_skipper_regexp {
     #  PAR packs these automatically these days.
