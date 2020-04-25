@@ -6,7 +6,7 @@ on:
       - '*'
     tags-ignore:
       - '*'
-  pull_request:
+  pull_request: 
 
 env:
   PERL5LIB: /Users/runner/perl5/lib/perl5
