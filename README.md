@@ -10,7 +10,7 @@ but knowing which dynamic libs to list is a source of general angst.  This tool 
 
 The pp_autolink.pl script finds dependent dynamic libs and passes them to a pp call.
 
-It has been tested for Windows and Mac machines only so far.  It is untested on linux and unix variants, or other OS types.
+It has been tested for Windows, Mac and Linux machines only so far.
 
 The argument list is the same as for pp.  
 
@@ -27,9 +27,9 @@ perl pp_autolink.pl -o some.exe --link /path/to/some.dylib some_script.pl
 
 Note that currently only one script is supported, and it must be the last argument in the command.  
 
-PRs are welcome.  
+PRs are welcome.
 
 
 ### Acknowledgements ###
 
-The logic has been adapted from the pp_simple.pl script at https://www.perlmonks.org/?node_id=1148802
+The initial logic was adapted from the pp_simple.pl script at https://www.perlmonks.org/?node_id=1148802
