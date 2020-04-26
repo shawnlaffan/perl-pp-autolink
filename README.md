@@ -1,6 +1,7 @@
 # perl-pp-autolink
 
 ![macos](https://github.com/shawnlaffan/perl-pp-autolink/workflows/macos/badge.svg)
+![linux](https://github.com/shawnlaffan/perl-pp-autolink/workflows/linux/badge.svg)
 
 pp is a tool that packs perl scripts and their dependencies into a stand alone executable.  https://metacpan.org/pod/pp
 
