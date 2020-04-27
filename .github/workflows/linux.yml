@@ -86,6 +86,7 @@ jobs:
           cpanm --notest File::Temp
           cpanm --notest Module::ScanDeps
           cpanm --notest Env
+          cpanm --notest Alien::sqlite
       
       
       - name: Test pack
