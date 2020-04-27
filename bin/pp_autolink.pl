@@ -76,7 +76,7 @@ die "Script $script_fullname does not have a .pl extension"
 my @alien_sys_installs;
 my @links = map {('--link' => $_)}
             $get_autolink_list_sub->($script_fullname, $no_execute_flag, \@alien_sys_installs);
-push @links, map {('--link' => $_)}, @alien_sys_installs;
+push @links, map {('--link' => $_)} @alien_sys_installs;
 say 'Detected link list: ' . join ' ', @links;
 
 my @command = (
