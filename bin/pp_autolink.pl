@@ -22,6 +22,27 @@ use Env qw /@PATH/;
 
 use Config;
 
+use Getopt::Long qw / GetOptionsFromArray :config pass_through /;
+
+use constant CASE_INSENSITIVE_OS => ($^O eq 'MSWin32');
+
+my @argv_linkers;
+
+#  slightly messy, but but issues with pass_through and --no-x
+my $no_execute_flag = not grep {$_ eq '-x'} @ARGV;
+
+#  Should trap any scandeps args (if diff from pp).
+my @args_array = @ARGV;
+
+GetOptionsFromArray (
+    \@args_array,
+    "link=s" => \@argv_linkers,
+);
+
+#  pp also allows multiple .pl files.
+my $script_fullname = $ARGV[-1] or die 'no input file specified';
+
+
 my $RE_DLL_EXT = qr/\.$Config::Config{so}$/i;
 my $get_autolink_list_sub = \&get_autolink_list;
 
@@ -35,28 +56,14 @@ if ($ldd_exe) {
     $get_autolink_list_sub = \&get_autolink_list_ldd;
 }
 
-use constant CASE_INSENSITIVE_OS => ($^O eq 'MSWin32');
-
-#  messy arg handling - ideally would use a GetOpts variant that allows
-#  pass through to pp without needing to set them after --
-#  Should also trap any scandeps args (if diff from pp).
-#  pp also allows multiple .pl files.
-my $script_fullname = $ARGV[-1] or die 'no input file specified';
-#  does not handle -x as a value for some other arg like --somearg -x
-my $no_execute_flag = not grep {$_ eq '-x'} @ARGV;
-
-#  should use a getopt module for this 
-my @argv_linkers;
-foreach my $idx (0 .. $#ARGV) {
-    next if $ARGV[$idx] ne '--link';
-    push @argv_linkers, $ARGV[$idx+1];
-}
+#  reassemble the arg list
+my @args_for_pp = (
+    (map {("--link" => $_)} @argv_linkers),
+    @args_array,
+);
 
 #  Try caching - scandeps will execute for us, and then we use a cache file
 #  Nope, did not get it to work, so disable for now
-#my @args_for_pp = grep {$_ ne '-x'} @ARGV;
-my @args_for_pp = @ARGV;
-
 my ($cache_fh, $cache_file);
 #($cache_fh, $cache_file)
 #  = tempfile( 'pp_autolink_cache_file_XXXXXX',
