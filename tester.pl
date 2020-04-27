@@ -10,6 +10,7 @@ BEGIN {
 };
 
 use Gtk2;
-#Gtk2->init;
+use Alien::sqlite;
 
 print "1\n";
+print "Alien::sqlite install type: " . Alien::sqlite->install_type . "\n";
