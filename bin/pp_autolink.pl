@@ -73,9 +73,10 @@ my ($cache_fh, $cache_file);
 die "Script $script_fullname does not have a .pl extension"
   if !$script_fullname =~ /\.pl$/;
 
+my @alien_sys_installs;
 my @links = map {('--link' => $_)}
-            $get_autolink_list_sub->($script_fullname, $no_execute_flag);
-
+            $get_autolink_list_sub->($script_fullname, $no_execute_flag, \@alien_sys_installs);
+push @links, map {('--link' => $_)}, @alien_sys_installs;
 say 'Detected link list: ' . join ' ', @links;
 
 my @command = (
@@ -92,7 +93,7 @@ system @command;
 #unlink $cache_file;
 
 sub get_autolink_list {
-    my ($script, $no_execute_flag) = @_;
+    my ($script, $no_execute_flag, $alien_sys_installs) = @_;
 
     my $OBJDUMP   = which('objdump')  or die "objdump not found";
     
@@ -133,7 +134,7 @@ sub get_autolink_list {
     #  poss Win32::GetLongPathName
     my @dlls = @argv_linkers;
     push @dlls,
-      get_dep_dlls ($script, $no_execute_flag);
+      get_dep_dlls ($script, $no_execute_flag, $alien_sys_installs);
 
     if (CASE_INSENSITIVE_OS) {
         @dlls = map {lc $_} @dlls;
@@ -221,11 +222,11 @@ sub get_autolink_list {
 }
 
 sub get_autolink_list_macos {
-    my ($script, $no_execute_flag) = @_;
+    my ($script, $no_execute_flag, $alien_sys_installs) = @_;
 
     my $OTOOL = which('otool')  or die "otool not found";
     
-    my @bundle_list = get_dep_dlls ($script, $no_execute_flag);
+    my @bundle_list = get_dep_dlls ($script, $no_execute_flag, $alien_sys_installs);
     my @libs_to_pack;
     my %seen;
 
@@ -265,9 +266,9 @@ sub get_autolink_list_macos {
 }
 
 sub get_autolink_list_ldd {
-    my ($script, $no_execute_flag) = @_;
+    my ($script, $no_execute_flag, $alien_sys_installs) = @_;
     
-    my @bundle_list = get_dep_dlls ($script, $no_execute_flag);
+    my @bundle_list = get_dep_dlls ($script, $no_execute_flag, $alien_sys_installs);
     my @libs_to_pack;
     my %seen;
 
@@ -354,7 +355,7 @@ sub get_dll_skipper_regexp {
 #  could also adapt some of Module::ScanDeps::_compile_or_execute
 #  as it handles more edge cases
 sub get_dep_dlls {
-    my ($script, $no_execute_flag) = @_;
+    my ($script, $no_execute_flag, $alien_sys_installs) = @_;
 
     #  This is clunky:
     #  make sure $script/../lib is in @INC
@@ -433,6 +434,9 @@ sub get_dep_dlls {
         say "Finding dynamic libs for $package";
         foreach my $path ($package->dynamic_libs) {
             $dll_hash{$path}++;
+        }
+        if ($package->install_type eq 'system') {
+            push @$alien_sys_installs, $package->dynamic_libs;
         }
     } 
     
