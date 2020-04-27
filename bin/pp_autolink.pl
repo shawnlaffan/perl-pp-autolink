@@ -85,7 +85,7 @@ my %found_linkers;
 @found_linkers{@dll_list} = undef;
 push @links,
   map {('--link' => $_)}
-  grep {exists $found_linkers{$_}}  #  avoid doubling up
+  grep {!exists $found_linkers{$_}}  #  avoid doubling up
   @alien_sys_installs;
 
 say 'Detected link list: ' . join ' ', @links;
