@@ -78,6 +78,7 @@ my @links = map {('--link' => $_)}
             $get_autolink_list_sub->($script_fullname, $no_execute_flag, \@alien_sys_installs);
 push @links, map {('--link' => $_)} @alien_sys_installs;
 say 'Detected link list: ' . join ' ', @links;
+say 'Alien sys installs: ' . join ' ', @alien_sys_installs;
 
 my @command = (
     'pp',
