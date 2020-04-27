@@ -74,9 +74,20 @@ die "Script $script_fullname does not have a .pl extension"
   if !$script_fullname =~ /\.pl$/;
 
 my @alien_sys_installs;
-my @links = map {('--link' => $_)}
-            $get_autolink_list_sub->($script_fullname, $no_execute_flag, \@alien_sys_installs);
-push @links, map {('--link' => $_)} @alien_sys_installs;
+my @dll_list = $get_autolink_list_sub->($script_fullname, $no_execute_flag, \@alien_sys_installs);
+my @links = map {('--link' => $_)} @dll_list;
+
+#  could do a reverse but that would be too tricksy
+#  @links = map {($_ => '--link')} (@list1, @list2);
+#  %x = @dll_list;
+#  @list = reverse %x;
+my %found_linkers;
+@found_linkers{@dll_list} = undef;
+push @links,
+  map {('--link' => $_)}
+  grep {exists $found_linkers{$_}}  #  avoid doubling up
+  @alien_sys_installs;
+
 say 'Detected link list: ' . join ' ', @links;
 say 'Alien sys installs: ' . join ' ', @alien_sys_installs;
 
