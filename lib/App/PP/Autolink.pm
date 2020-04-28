@@ -21,6 +21,7 @@ use Module::ScanDeps;
 use Env qw /@PATH/;
 
 use Config;
+use Getopt::ArgvFile default=>1;
 use Getopt::Long qw / GetOptionsFromArray :config pass_through /;
 
 our $VERSION = '2.00';
@@ -99,7 +100,7 @@ sub build {
         @args_for_pp,
     );
 
-    #say join ' ', @command;
+    say 'CMD:' . join ' ', @command;
     system (@command) == 0
       or die "system @command failed: $?";
 
