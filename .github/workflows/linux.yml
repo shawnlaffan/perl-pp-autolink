@@ -74,6 +74,7 @@ jobs:
 
       - name: Install cpan deps 
         run: |
+          cpanm --notest rlib
           cpanm --notest Gtk2
           cpanm --notest PAR::Packer
           cpanm --notest File::BaseDir

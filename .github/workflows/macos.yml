@@ -62,6 +62,7 @@ jobs:
 
       - name: Install cpan deps 
         run: |
+          cpanm --notest rlib
           cpanm --notest ExtUtils::PkgConfig
           cpanm --notest ExtUtils::Depends
           cpanm --notest Gtk2
