@@ -10,13 +10,13 @@ BEGIN {
 };
 
 use Gtk2;
-use Alien::sqlite;
+use Alien::proj;
 
 print "1\n";
-print "Alien::sqlite install type: "
-     . Alien::sqlite->install_type
+print "Alien::proj install type: "
+     . Alien::proj->install_type
      . "\n";
-print "Alien::sqlite dynamic libs: "
-    . (join ' ', Alien::sqlite->dynamic_libs)
+print "Alien::proj dynamic libs: "
+    . (join ' ', Alien::proj->dynamic_libs)
     . "\n";
 print "end of script $0\n";
