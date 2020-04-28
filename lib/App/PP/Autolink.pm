@@ -111,9 +111,6 @@ sub build {
 sub get_autolink_list {
     my ($self) = @_;
     
-    my $script = $self->{script_fullname};
-    my $no_execute_flag = $self->{no_execute_flag};
-    my $alien_sys_installs  = $self->{alien_sys_installs};
     my $argv_linkers = $self->{argv_linkers};
 
     my $OBJDUMP   = which('objdump')  or die "objdump not found";
@@ -245,14 +242,11 @@ sub get_autolink_list {
 sub get_autolink_list_macos {
     my ($self) = @_;
     
-    my $script = $self->{script_fullname};
-    my $no_execute_flag = $self->{no_execute_flag};
-    my $alien_sys_installs = $self->{alien_sys_installs};
     my $argv_linkers = $self->{argv_linkers};
 
     my $OTOOL = which('otool')  or die "otool not found";
     
-    my @bundle_list = get_dep_dlls ($script, $no_execute_flag, $alien_sys_installs);
+    my @bundle_list = $self->get_dep_dlls;
     my @libs_to_pack;
     my %seen;
 
@@ -294,9 +288,6 @@ sub get_autolink_list_macos {
 sub get_autolink_list_ldd {
     my ($self) = @_;
     
-    my $script = $self->{script_fullname};
-    my $no_execute_flag = $self->{no_execute_flag};
-    my $alien_sys_installs = $self->{alien_sys_installs};
     my $argv_linkers = $self->{argv_linkers};
     
     my @bundle_list = $self->get_dep_dlls;
