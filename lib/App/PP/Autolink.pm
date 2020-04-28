@@ -16,7 +16,7 @@ use Capture::Tiny    qw/ capture /;
 use List::Util       qw( uniq any );
 use File::Find::Rule qw/ rule find /;
 use Path::Tiny       qw/ path /;
-use File::Temp       qw/ tempfile /;
+#use File::Temp       qw/ tempfile /;
 use Module::ScanDeps;
 use Env qw /@PATH/;
 
