@@ -5,6 +5,7 @@ _alien
 
 .travis.yml
 appveyor.yml
+.github/
 
 MANIFEST.bak
 
@@ -17,3 +18,7 @@ blib
 
 .tar$
 .gz$
+
+tester.pl
+
+source/

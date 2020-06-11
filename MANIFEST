@@ -4,13 +4,7 @@ LICENSE
 Makefile.PL
 MANIFEST			This list of files
 MANIFEST.skip
+pod2htmd.tmp
 README.md
 t/00-load.t
 t/01-has-utils.t
-t/source/dlla1.c
-t/source/dlla2.c
-t/source/dlla2.def
-t/source/dlla2.dll
-t/source/dlla2.h
-t/source/dlla2.o
-tester.pl
