@@ -24,7 +24,7 @@ use Config;
 use Getopt::ArgvFile default=>1;
 use Getopt::Long qw / GetOptionsFromArray :config pass_through /;
 
-our $VERSION = '2.01';
+our $VERSION = '2.02';
 
 use constant CASE_INSENSITIVE_OS => ($^O eq 'MSWin32');
 
