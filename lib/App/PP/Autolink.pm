@@ -558,6 +558,7 @@ Since all pp_autolink does is wrangle dynamic libs and then call pp,
 it will still be used for the final executable. 
 
 
+=back
 
 =head1 SEE ALSO
 
