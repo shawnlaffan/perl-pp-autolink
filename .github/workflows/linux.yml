@@ -88,8 +88,9 @@ jobs:
           cpanm --notest Module::ScanDeps
           cpanm --notest Env
           cpanm --notest Alien::sqlite
-          cpanm --notest Alien::proj
-      
+          cpanm --notest --installdeps Alien::proj
+          MAKEFLAGS=-j4 cpanm --notest -v Alien::proj
+
       
       - name: Test pack
         run: |
