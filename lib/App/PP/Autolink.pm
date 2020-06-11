@@ -57,7 +57,7 @@ sub new {
 
     GetOptionsFromArray (
         \@args_array,
-        "link=s" => \@argv_linkers,
+        "link|l=s" => \@argv_linkers,
     );
     $self->{argv_linkers} = \@argv_linkers;
     $self->{args_to_pass_to_pp}  = \@args_array;
