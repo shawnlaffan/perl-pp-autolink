@@ -13,7 +13,7 @@ use English qw / -no_match_vars /;
 
 use File::Which      qw( which );
 use Capture::Tiny    qw/ capture /;
-use List::Util       qw( uniq any );
+use List::Util       1.45 qw( uniq any );
 use File::Find::Rule qw/ rule find /;
 use Path::Tiny       qw/ path /;
 #use File::Temp       qw/ tempfile /;
