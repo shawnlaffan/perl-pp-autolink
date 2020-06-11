@@ -1,4 +1,5 @@
 bin/pp_autolink.pl
+CHANGES
 lib/App/PP/Autolink.pm
 LICENSE
 Makefile.PL
