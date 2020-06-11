@@ -36,8 +36,10 @@ jobs:
 
       - name: Probe wd
         run: |
+          echo $HOME
           pwd
           ls -l
+          ls /github/home/
 
       #- name: Install pkgconfig
       #  run: apt-get install pkgconfig
@@ -57,11 +59,9 @@ jobs:
       - name: Prepare for cache
         run: |
           perl -V > perlversion.txt
-          #  change the checksum so we refresh the cache
           echo '20200611' >> perlversion.txt
-          pwd
           ls -l perlversion.txt
-          ls /github/home/
+          
 
       #- name: clear cache
       #  run: rm ~/perl5/${{ runner.os }}-build-${{ hashFiles('perlversion.txt') }}
