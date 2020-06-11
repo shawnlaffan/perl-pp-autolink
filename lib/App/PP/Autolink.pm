@@ -461,7 +461,8 @@ sub get_dep_dlls {
                 next ALIEN;
             }
         }
-        next ALIEN if !$package->can ('dynamic_libs');  # some older aliens might not be able to
+        # some older aliens might do different things
+        next ALIEN if !$package->isa ('Alien::Base');  
         say "Finding dynamic libs for $package";
         foreach my $path ($package->dynamic_libs) {
             $dll_hash{$path}++;
@@ -523,14 +524,16 @@ source of angst is that dynamic libs have dependencies that must
 be traced and also packed for the packed executable to be usable on
 a "clean" system.
 
-F<pp_autolink> is an attempt to automate this recursive packing process.
+F<pp_autolink> is an attempt to automate this packing process.
 
 All F<pp_autolink> does is recursively check all dynamic libs used by a perl script
 and add them to the L<pp> call using C<--link> command line arguments.
 
-Depending on your system it will use I<ldd>, I<objdump> or I<otool>.
+Depending on your system it will use the I<ldd>, I<objdump> or I<otool>
+utilities to find dependent libs.
 
-It will also check dynamic libs used by Aliens if detected.
+It will also check dynamic libs used by Aliens if they are detected
+and inherit from L<Alien::Base>.
 
 Note that testing is currently very threadbare,
 so please report issues.  Pull requests are very welcome.
@@ -553,8 +556,8 @@ See the L<pp|pp documentation> for full details.
 
 =item PP_OPTS
 
-The PP_OPTS environment variable, used by L<pp>, is ignored by this script.
-Since all pp_autolink does is wrangle dynamic libs and then call pp,
+The PP_OPTS environment variable, used by L<pp>, is ignored.
+Since all pp_autolink does is wrangle dynamic libs and then add them to a pp call,
 it will still be used for the final executable. 
 
 
