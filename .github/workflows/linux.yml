@@ -90,7 +90,8 @@ jobs:
           cpanm --notest File::Temp
           cpanm --notest Module::ScanDeps
           cpanm --notest Env
-          cpanm --notest Alien::sqlite
+          cpanm --notest --installdeps Alien::sqlite
+          MAKEFLAGS=-j4 cpanm --notest -v Alien::sqlite
           cpanm --notest --installdeps Alien::proj
           MAKEFLAGS=-j4 cpanm --notest -v Alien::proj
 
