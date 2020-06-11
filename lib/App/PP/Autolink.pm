@@ -477,3 +477,116 @@ sub get_dep_dlls {
 
 
 1;
+
+__END__
+
+=head1 NAME
+
+pp_autolink - Run the pp (PAR Packager) utility while automatically finding dynamic libs to link
+
+=head1 SYNOPSIS
+
+pp_autolink S<--link some_dll> S<pp_opts> S<[ I<scriptfile> ]>
+
+=head1 EXAMPLES
+
+Note: As with L<pp>, when running on Microsoft Windows, the F<a.out> below will be
+replaced by F<a.exe> instead.
+
+    #  Pack 'hello.pl' into executable 'a.out'
+    % pp_autolink hello.pl
+    
+    #  Pack 'hello.pl' into executable 'hello'
+    #  (or 'hello.exe' on Win32)
+    % pp_autolink -o hello hello.pl
+                                
+    #  pack hello.pl and its dependent dynamic libs,
+    #  as well as some.dylib and other.dylib,
+    #  and their dependent dynamic libs
+    % pp_autolink --link some.dylib --link other.dylib -o hello hello.pl
+    
+    #  Args other than --link are passed on to the pp call
+    #  e.g., extra modules in the include path
+    #  (these are not currently checked by pp_autolink)
+    % pp_autolink -M Foo::Bar hello      
+
+    #  pp_autolink also supports the @file syntax for args
+    #  Pack 'hello.pl' but read _additional_
+    #  options from file 'file'
+    % pp_autolink @file hello.pl         
+
+=head1 DESCRIPTION
+
+I<L<pp>> creates standalone executables from Perl programs.
+However, it does not pack dynamic libs by default, and a general
+source of angst is that dynamic libs have dependencies that must
+be traced and also packed for the packed executable to be usable on
+a "clean" system.
+
+F<pp_autolink> is an attempt to automate this recursive packing process.
+
+All F<pp_autolink> does is recursively check all dynamic libs used by a perl script
+and add them to the L<pp> call using C<--link> command line arguments.
+
+Depending on your system it will use I<ldd>, I<objdump> or I<otool>.
+
+It will also check dynamic libs used by Aliens if detected.
+
+Note that testing is currently very threadbare,
+so please report issues.  Pull requests are very welcome.
+
+=head1 OPTIONS
+
+As with L<pp>, options are available in a I<short> form and a I<long> form.  For
+example, these lines are equivalent:
+
+    % pp_autolink -l some.dll output.exe input.pl
+    % pp_autolink --link some.dll --output output.exe input.pl
+
+All other options are passed on to the pp call.
+See the L<pp|pp documentation> for full details.  
+
+
+=head1 ENVIRONMENT
+
+=over 4
+
+=item PP_OPTS
+
+The PP_OPTS environment variable, used by L<pp>, is ignored by this script.
+Since all pp_autolink does is wrangle dynamic libs and then call pp,
+it will still be used for the final executable. 
+
+
+
+=head1 SEE ALSO
+
+L<pp>, L<PAR>, L<PAR::Packer>, L<Module::ScanDeps>
+
+L<Getopt::Long>, L<Getopt::ArgvFile>
+
+=head1 ACKNOWLEDGMENTS
+
+The initial version of pp_autolink was adapted
+from the L<pp_simple|https://www.perlmonks.org/?node_id=1148802> utility.
+
+
+=head1 AUTHORS
+
+Shawn Laffan E<lt>shawnlaffan@gmail.comE<gt>,
+
+
+Please submit bug reports to L<https://github.com/shawnlaffan/perl-pp-autolink/issues>.
+
+=head1 COPYRIGHT
+
+Copyright 2017-2020 by Shawn Laffan
+E<lt>shawnlaffan@gmail.comE<gt>.
+
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See F<LICENSE>.
+
+=cut
