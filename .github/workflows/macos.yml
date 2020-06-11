@@ -79,7 +79,13 @@ jobs:
           cpanm --notest Env
           cpanm --notest Alien::sqlite
           cpanm --notest Alien::proj
-      
+
+
+      - name: Build and test
+        run: |
+          perl Makefile.PL
+          make
+          make test
       
       - name: Test pack
         run: |

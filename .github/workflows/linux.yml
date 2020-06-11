@@ -94,6 +94,11 @@ jobs:
           cpanm --notest --installdeps Alien::proj
           cpanm --notest -v Alien::proj
 
+      - name: Build and test
+        run: |
+          perl Makefile.PL
+          make
+          make test
       
       - name: Test pack
         run: |
