@@ -48,7 +48,7 @@ sub new {
       #  objdump behaves differently on linux (centos at least)
       : die 'Unable to generate autolink list';
     
-    #  slightly messy, but but issues with pass_through and --no-x
+    #  slightly messy, but issues with pass_through and --no-x
     $self->{no_execute_flag} = not grep {$_ eq '-x'} @args;
     
     #  Should trap any scandeps args (if diff from pp).
