@@ -90,7 +90,14 @@ sub build {
     my %tmp   = map {($_ => '--link')} (@dll_list, @$alien_sys_installs);
     my @links = reverse %tmp;
 
-    say 'Alien sys dlls added: ' . join ' ', @$alien_sys_installs;
+    if (@$alien_sys_installs) {
+        say 'Alien sys dlls added: ' . join ' ', @$alien_sys_installs;
+        say '';
+    }
+    else {
+      say "No alien system dlls detected\n";
+    }
+
     say 'Detected link list: '   . join ' ', @links;
 
     my @command = (
@@ -232,9 +239,11 @@ sub get_autolink_list {
             push @missing2, $file;
         }
         
-        say STDERR "\nUnable to locate these DLLS, packed script might not work: "
-        . join  ' ', sort {$a cmp $b} @missing2;
-        say '';
+        if (@missing2) {
+            say STDERR "\nUnable to locate these DLLS, packed script might not work: "
+                     . join  ' ', sort {$a cmp $b} @missing2;
+            say '';
+        }
     }
 
     return wantarray ? @l2 : \@l2;
