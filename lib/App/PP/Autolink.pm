@@ -128,11 +128,12 @@ sub get_autolink_list {
     my @system_paths;
 
     if ($OSNAME =~ /MSWin32/i) {
-        #  skip anything under the C:\Windows folder
-        #  and no longer existant folders 
-        my $system_root = $ENV{SystemRoot};
-        @system_paths = grep {$_ =~ m|^\Q$system_root\E|i} @exe_path;
-        @exe_path = grep {(-e $_) and $_ !~ m|^\Q$system_root\E|i} @exe_path;
+        #  skip anything under the C:\Windows folder,
+        #  blank entries
+        #  and no longer extant folders 
+        my $system_root = $ENV{SystemRoot} || $ENV{WINDIR};
+        @system_paths = grep {$_ and $_ =~ m|^\Q$system_root\E|i} @exe_path;
+        @exe_path     = grep {$_ and (-e $_) and $_ !~ m|^\Q$system_root\E|i} @exe_path;
         #say "PATHS: " . join ' ', @exe_path;
     }
     #  what to skip for linux or mac?
