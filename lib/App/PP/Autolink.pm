@@ -107,7 +107,7 @@ sub build {
         @args_for_pp,
     );
 
-    say 'CMD:' . join ' ', @command;
+    say 'CMD: ' . join ' ', @command;
     system (@command) == 0
       or die "system @command failed: $?";
 
