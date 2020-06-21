@@ -337,8 +337,7 @@ sub get_autolink_list_ldd {
                 delete $dlls{$name};
             }
             elsif (
-                 $path =~ m{^(?:/usr)?/lib(?:32|64)/}  #  system lib
-              or $path =~ m{^/lib/}
+                 $path =~ m{^(?:/usr)?/lib(?:32|64)?/}  #  system lib
               or $path =~ m{\Qdarwin-thread-multi-2level/auto/share/dist/Alien\E}  #  alien in share
               or $name =~ m{^lib(?:c|gcc_s|stdc\+\+)\.}  #  should already be packed?
               ) {
