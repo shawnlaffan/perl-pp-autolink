@@ -436,6 +436,10 @@ sub get_dep_dlls {
         if ($details->{key} =~ m{^Alien/.+\.pm$}) {
             push @aliens, $package;
         }
+
+        push @uses, $package
+          if $details->{file} =~ /.dll/;
+
         next if !@uses;
         
         foreach my $dll (grep {$_ =~ $RE_DLL_EXT} @uses) {
