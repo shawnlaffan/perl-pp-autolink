@@ -72,12 +72,14 @@ jobs:
 
       - name: Install cpan deps 
         run: |
+          echo $PATH
           which -a perl
           cpanm --notest rlib
           #cpanm --notest ExtUtils::PkgConfig
           #cpanm --notest ExtUtils::Depends
           #cpanm --notest Gtk2
           cpanm --notest PAR::Packer
+          which -a pp
           cpanm --notest File::BaseDir
           cpanm --notest File::Find::Rule
           cpanm --notest File::Which
@@ -101,6 +103,7 @@ jobs:
       - name: Test pack
         run: |
           echo Running perl dynamic_libs check
+          echo $PATH
           which -a pp
           which -a perl
           perl -MList::Util -E'say List::Util::first {$_} (1..10)'
