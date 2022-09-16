@@ -30,15 +30,23 @@ jobs:
       - name: Install pkgconfig
         run: brew install pkgconfig
         
-      - name: Install Gtk etc
-        run: brew install gdk-pixbuf pango gtk+ proj
+      - name: Install proj
+        #run: brew install gdk-pixbuf pango gtk+ proj
+        run: brew install proj
       
       - name: Set up Perl
         run: |
           brew install perl
-          curl https://cpanmin.us | perl - App::cpanminus -n
+          ##curl https://cpanmin.us | perl - App::cpanminus -n
           ##echo "##[add-path]/Users/runner/perl5/bin"
-          echo "{/Users/runner/perl5/bin}" >> $GITHUB_PATH
+          echo "/Users/runner/perl5/bin" >> $GITHUB_PATH
+          mkdir -p ~/bin
+          cd ~/bin
+          curl -L https://cpanmin.us/ -o cpanm
+          chmod +x cpanm
+          echo "~/bin" >> $GITHUB_PATH
+          which -a perl
+          which -a cpanm
 
       - name: perl -V
         run: perl -V
@@ -48,6 +56,7 @@ jobs:
           perl -V > perlversion.txt
           #  change the checksum so we refresh the cache
           echo 'with shared Alien installs' >> perlversion.txt
+          echo '20220917' >> perlversion.txt
           ls -l perlversion.txt
 
       #- name: clear cache
@@ -63,11 +72,14 @@ jobs:
 
       - name: Install cpan deps 
         run: |
+          echo $PATH
+          which -a perl
           cpanm --notest rlib
-          cpanm --notest ExtUtils::PkgConfig
-          cpanm --notest ExtUtils::Depends
-          cpanm --notest Gtk2
+          #cpanm --notest ExtUtils::PkgConfig
+          #cpanm --notest ExtUtils::Depends
+          #cpanm --notest Gtk2
           cpanm --notest PAR::Packer
+          which -a pp
           cpanm --notest File::BaseDir
           cpanm --notest File::Find::Rule
           cpanm --notest File::Which
@@ -91,7 +103,11 @@ jobs:
       - name: Test pack
         run: |
           echo Running perl dynamic_libs check
-          #  do we pack libproj
+          echo $PATH
+          which -a pp
+          which -a perl
+          perl -MList::Util -E'say List::Util::first {$_} (1..10)'
+          #  do we pack libproj?
           #find /usr/local/Cellar -name libproj.dylib -print
           export libproj=`find /usr/local/Cellar -name libproj.dylib -print`
           echo LIBPROJ is at $libproj
