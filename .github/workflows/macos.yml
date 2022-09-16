@@ -102,6 +102,7 @@ jobs:
         run: |
           echo Running perl dynamic_libs check
           which -a perl
+          perl -MList::Util -E'say List::Util::first {$_} (1..10)'
           #  do we pack libproj?
           #find /usr/local/Cellar -name libproj.dylib -print
           export libproj=`find /usr/local/Cellar -name libproj.dylib -print`
