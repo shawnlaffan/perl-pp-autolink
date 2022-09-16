@@ -438,7 +438,7 @@ sub get_dep_dlls {
         }
 
         push @uses, $package
-          if $details->{file} =~ /.dll/;
+          if $details->{file} =~ $RE_DLL_EXT;
 
         next if !@uses;
         
