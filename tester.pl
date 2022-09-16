@@ -9,7 +9,7 @@ BEGIN {
     }
 };
 
-use Gtk2;
+#use Gtk2;
 use Alien::proj;
 
 print "1\n";
