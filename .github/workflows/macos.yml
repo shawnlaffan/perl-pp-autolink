@@ -36,9 +36,16 @@ jobs:
       - name: Set up Perl
         run: |
           brew install perl
-          curl https://cpanmin.us | perl - App::cpanminus -n
+          ##curl https://cpanmin.us | perl - App::cpanminus -n
           ##echo "##[add-path]/Users/runner/perl5/bin"
           echo "{/Users/runner/perl5/bin}" >> $GITHUB_PATH
+          mkdir -p ~/bin
+          cd ~/bin
+          curl -L https://cpanmin.us/ -o cpanm
+          chmod +x cpanm
+          echo "{~/bin}" >> $GITHUB_PATH
+          which perl
+          which cpanm
 
       - name: perl -V
         run: perl -V
