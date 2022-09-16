@@ -30,7 +30,7 @@ jobs:
       - name: Install pkgconfig
         run: brew install pkgconfig
         
-      - name: Install Gtk etc
+      - name: Install proj
         #run: brew install gdk-pixbuf pango gtk+ proj
         run: brew install proj
       
@@ -45,8 +45,8 @@ jobs:
           curl -L https://cpanmin.us/ -o cpanm
           chmod +x cpanm
           echo "{~/bin}" >> $GITHUB_PATH
-          which perl
-          which cpanm
+          which -a perl
+          which -a cpanm
 
       - name: perl -V
         run: perl -V
