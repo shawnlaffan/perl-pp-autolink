@@ -15,7 +15,7 @@ $image->box(xmin => 20, ymin => 20, xmax => 79, ymax => 79,
 my $font_filename = "$Bin/FreeSansBold.ttf";
 if ( $ENV{PAR_0} ) {
     $font_filename = $ENV{PAR_TEMP} . "/inc/" . $font_filename;
-	die "no file" if !-e $font_filename;
+	die "no font file" if !-e $font_filename;
 }
 
 my $font = Imager::Font->new(file=>$font_filename)
