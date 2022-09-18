@@ -100,6 +100,17 @@ jobs:
           make
           make test
       
+      - name: Test Imager
+        run: |
+          apt-get --yes --force-yes install libfreetype-dev
+          cpanm --notest Imager
+          cpanm Imager::Font::FT2
+          cpanm Imager::File::PNG
+          perl blib/script/pp_autolink.pl --addfile "etc/imager_check/FreeSansBold.ttf;FreeSansBold.ttf" -x -o imager_check etc/imager_check/prog.pl
+          echo Dylib files in packed archive:
+          unzip -l imager_check | grep '.so'
+          #  ./imager_check
+        
       - name: Test pack
         run: |
           echo Running perl dynamic_libs check
