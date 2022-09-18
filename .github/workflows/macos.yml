@@ -99,7 +99,15 @@ jobs:
           perl Makefile.PL
           make
           make test
-      
+
+      - name: Test Imager
+        run: |
+          cpanm --notest Imager
+          blib/script/pp_autolink -o imager_check -x etc/imager_check/prog.pl
+          ./imager_check
+          echo Dylib files in packed archive:
+          unzip -l imager_check | grep dylib
+
       - name: Test pack
         run: |
           echo Running perl dynamic_libs check
