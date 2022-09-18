@@ -102,7 +102,7 @@ jobs:
       
       - name: Test Imager
         run: |
-          sudo apt install libfreetype-dev
+          apt-get --yes --force-yes install libfreetype-dev
           cpanm --notest Imager
           cpanm Imager::Font::FT2
           cpanm Imager::File::PNG
