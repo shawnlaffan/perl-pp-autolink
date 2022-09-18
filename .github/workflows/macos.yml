@@ -107,9 +107,10 @@ jobs:
           cpanm Imager::Font::FT2
           cpanm Imager::File::PNG
           perl blib/script/pp_autolink.pl --addfile "etc/imager_check/FreeSansBold.ttf;FreeSansBold.ttf" -x -o imager_check etc/imager_check/prog.pl
-          ./imager_check
           echo Dylib files in packed archive:
           unzip -l imager_check | grep dylib
+          # ./imager_check
+
 
       - name: Test pack
         run: |
