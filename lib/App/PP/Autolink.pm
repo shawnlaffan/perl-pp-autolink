@@ -254,6 +254,10 @@ sub _resolve_rpath_mac {
     my ($source, $target) = @_;
 
     say "Resolving rpath for $source wrt $target";
+
+    #  clean up the target
+    $target =~ s|\@rpath/||;
+
     my @results = qx /otool -l $source/;
     while (my $line = shift @results) {
         last if $line =~ /LC_RPATH/;
@@ -273,14 +277,15 @@ sub _resolve_rpath_mac {
     foreach my $path (@paths) {
         chomp $path; #  should be done above
         $path =~ s/\@loader_path/$loader_path/;
-        $path = path($path);
+        $path = path($path, $target);
         if ($path->exists) {
             $path = $path->realpath->stringify;
+	    push @checked_paths, $path;
         }
     }
 
     #  should handle multiple paths
-    return $paths[0];
+    return $checked_paths[0];
 }
 
 sub _resolve_loader_path_mac {
