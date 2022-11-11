@@ -271,11 +271,11 @@ sub _resolve_rpath_mac {
     my $loader_path = path ($source)->parent->stringify;
     my @checked_paths;
     foreach my $path (@paths) {
-    chomp $path; #  should be done above
-    $path =~ s/\@loader_path/$loader_path/;
-    $path = path($path);
-    if ($path->exists) {
-        $path = $path->realpath->stringify;
+        chomp $path; #  should be done above
+        $path =~ s/\@loader_path/$loader_path/;
+        $path = path($path);
+        if ($path->exists) {
+            $path = $path->realpath->stringify;
         }
     }
 
