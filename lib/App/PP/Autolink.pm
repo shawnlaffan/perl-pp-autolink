@@ -283,6 +283,14 @@ sub _resolve_rpath_mac {
     return $paths[0];
 }
 
+sub _resolve_loader_path_mac {
+    my ($source, $target) = @_;
+    say "Resolving loader_path for $source wrt $target";
+    my $source_path = path($source)->parent->stringify;
+    $target =~ s/\@loader_path/$source_path/;
+    return $target;
+}
+
 
 sub get_autolink_list_macos {
     my ($self) = @_;
@@ -319,6 +327,10 @@ sub get_autolink_list_macos {
                     say STDERR "Cannot resolve rpath for $orig_name, dependency of $lib";
                     next DEP_LIB;
                 }
+            }
+	    elsif ($dylib =~ /\@loader_path/) {
+                my $orig_name = $dylib;
+		$dylib = _resolve_loader_path_mac($lib, $dylib);
             }
             next if $seen{$dylib};
             next if $dylib =~ m{^/System};  #  skip system libs
