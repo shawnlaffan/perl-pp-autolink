@@ -312,13 +312,13 @@ sub get_autolink_list_macos {
         foreach my $line (@lib_arr) {
             $line =~ /^\s+(.+?)\s/;
             my $dylib = $1;
-        if ($dylib =~ /\@rpath/i) {
-        my $orig_name = $dylib;
-            $dylib = _resolve_rpath_mac($lib, $dylib);
-        if (!defined $dylib) {
-            say STDERR "Cannot resolve rpath for $orig_name, dependency of $lib";
-            next DEP_LIB;
-        }
+            if ($dylib =~ /\@rpath/i) {
+                my $orig_name = $dylib;
+                $dylib = _resolve_rpath_mac($lib, $dylib);
+                if (!defined $dylib) {
+                    say STDERR "Cannot resolve rpath for $orig_name, dependency of $lib";
+                    next DEP_LIB;
+                }
             }
             next if $seen{$dylib};
             next if $dylib =~ m{^/System};  #  skip system libs
