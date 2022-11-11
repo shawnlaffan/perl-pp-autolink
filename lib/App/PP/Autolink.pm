@@ -250,6 +250,41 @@ sub get_autolink_list {
     return wantarray ? @l2 : \@l2;
 }
 
+sub _resolve_rpath_mac {
+    my ($source, $target) = @_;
+
+    say "Resolving rpath for $source wrt $target";
+    my @results = qx /otool -l $source/;
+    while (my $line = shift @results) {
+        last if $line =~ /LC_RPATH/;
+    }
+    say join "", @results;
+    my @paths
+      = map {s/\s\(offset.+$//r}
+        map {s/^\s+path //r}
+    grep {/^\s+path/}
+    @results;
+    say '=========';
+    say join ":", @paths;
+    say '=========';
+    my $loader_path = path ($source)->parent->stringify;
+    my @checked_paths;
+    foreach my $path (@paths) {
+    chomp $path; #  should be done above
+    $path =~ s/\@loader_path/$loader_path/;
+    $path = path($path);
+    if ($path->exists) {
+        $path = $path->realpath->stringify;
+        }
+    }
+    say '=========';
+    say join ":", @paths;
+    say '=========';
+    #  should handle multiple paths
+    return $paths[0];
+}
+
+
 sub get_autolink_list_macos {
     my ($self) = @_;
     
@@ -274,9 +309,18 @@ sub get_autolink_list_macos {
         warn qq["otool -L $lib" failed\n]
           if not $? == 0;
         shift @lib_arr;  #  first result is dylib we called otool on
+      DEP_LIB:
         foreach my $line (@lib_arr) {
             $line =~ /^\s+(.+?)\s/;
             my $dylib = $1;
+        if ($dylib =~ /\@rpath/i) {
+        my $orig_name = $dylib;
+            $dylib = _resolve_rpath_mac($lib, $dylib);
+        if (!defined $dylib) {
+            say STDERR "Cannot resolve rpath for $orig_name, dependency of $lib";
+            next DEP_LIB;
+        }
+            }
             next if $seen{$dylib};
             next if $dylib =~ m{^/System};  #  skip system libs
             #next if $dylib =~ m{^/usr/lib/system};
