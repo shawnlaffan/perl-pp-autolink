@@ -258,15 +258,16 @@ sub _resolve_rpath_mac {
     while (my $line = shift @results) {
         last if $line =~ /LC_RPATH/;
     }
-    say join "", @results;
+    my @lc_rpath_chunk;
+    while (my $line = shift @results) {
+        last if $line =~ /LC_/;  #  any other command
+	push @lc_rpath_chunk, $line;
+    }
     my @paths
       = map {s/\s\(offset.+$//r}
         map {s/^\s+path //r}
-    grep {/^\s+path/}
-    @results;
-    say '=========';
-    say join ":", @paths;
-    say '=========';
+        grep {/^\s+path/}
+        @lc_rpath_chunk;
     my $loader_path = path ($source)->parent->stringify;
     my @checked_paths;
     foreach my $path (@paths) {
@@ -277,9 +278,7 @@ sub _resolve_rpath_mac {
         $path = $path->realpath->stringify;
         }
     }
-    say '=========';
-    say join ":", @paths;
-    say '=========';
+
     #  should handle multiple paths
     return $paths[0];
 }
