@@ -250,6 +250,53 @@ sub get_autolink_list {
     return wantarray ? @l2 : \@l2;
 }
 
+sub _resolve_rpath_mac {
+    my ($source, $target) = @_;
+
+    say "Resolving rpath for $source wrt $target";
+
+    #  clean up the target
+    $target =~ s|\@rpath/||;
+
+    my @results = qx /otool -l $source/;
+    while (my $line = shift @results) {
+        last if $line =~ /LC_RPATH/;
+    }
+    my @lc_rpath_chunk;
+    while (my $line = shift @results) {
+        last if $line =~ /LC_/;  #  any other command
+	push @lc_rpath_chunk, $line;
+    }
+    my @paths
+      = map {s/\s\(offset.+$//r}
+        map {s/^\s+path //r}
+        grep {/^\s+path/}
+        @lc_rpath_chunk;
+    my $loader_path = path ($source)->parent->stringify;
+    my @checked_paths;
+    foreach my $path (@paths) {
+        chomp $path; #  should be done above
+        $path =~ s/\@loader_path/$loader_path/;
+        $path = path($path, $target);
+        if ($path->exists) {
+            $path = $path->realpath->stringify;
+	    push @checked_paths, $path;
+        }
+    }
+
+    #  should handle multiple paths
+    return $checked_paths[0];
+}
+
+sub _resolve_loader_path_mac {
+    my ($source, $target) = @_;
+    say "Resolving loader_path for $source wrt $target";
+    my $source_path = path($source)->parent->stringify;
+    $target =~ s/\@loader_path/$source_path/;
+    return $target;
+}
+
+
 sub get_autolink_list_macos {
     my ($self) = @_;
     
@@ -274,9 +321,22 @@ sub get_autolink_list_macos {
         warn qq["otool -L $lib" failed\n]
           if not $? == 0;
         shift @lib_arr;  #  first result is dylib we called otool on
+      DEP_LIB:
         foreach my $line (@lib_arr) {
             $line =~ /^\s+(.+?)\s/;
             my $dylib = $1;
+            if ($dylib =~ /\@rpath/i) {
+                my $orig_name = $dylib;
+                $dylib = _resolve_rpath_mac($lib, $dylib);
+                if (!defined $dylib) {
+                    say STDERR "Cannot resolve rpath for $orig_name, dependency of $lib";
+                    next DEP_LIB;
+                }
+            }
+	    elsif ($dylib =~ /\@loader_path/) {
+                my $orig_name = $dylib;
+		$dylib = _resolve_loader_path_mac($lib, $dylib);
+            }
             next if $seen{$dylib};
             next if $dylib =~ m{^/System};  #  skip system libs
             #next if $dylib =~ m{^/usr/lib/system};
