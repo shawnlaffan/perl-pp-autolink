@@ -67,6 +67,7 @@ sub new {
     $self->{script_fullname} = $script_fullname;
 
     $self->{alien_sys_installs} = [];
+    $self->{alien_deps}         = [];
 
     return $self;
 }
@@ -98,12 +99,18 @@ sub build {
       say "No alien system dlls detected\n";
     }
 
-    say 'Detected link list: '   . join ' ', @links;
+    say 'Detected link list: '   . join ' ', grep {$_ ne '--link'} @links;
+    say '';
+
+    my @alien_deps = map {; '-M' => $_} @{$self->{alien_deps}};
+    say 'Detected alien list: '  . join ' ', sort @{$self->{alien_deps}};
+    say '';
 
     my @command = (
         'pp',
         @links,
         #"--cachedeps=$cache_file",
+        @alien_deps,
         @args_for_pp,
     );
 
@@ -561,6 +568,7 @@ sub get_dep_dlls {
         if ($package->install_type eq 'system') {
             push @$alien_sys_installs, $package->dynamic_libs;
         }
+        push @{$self->{alien_deps}}, $package;
     } 
     
     my @dll_list = sort keys %dll_hash;
