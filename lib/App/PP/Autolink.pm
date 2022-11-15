@@ -24,7 +24,7 @@ use Config;
 use Getopt::ArgvFile default=>1;
 use Getopt::Long qw / GetOptionsFromArray :config pass_through /;
 
-our $VERSION = '2.06';
+our $VERSION = '2.07';
 
 use constant CASE_INSENSITIVE_OS => ($^O eq 'MSWin32');
 
@@ -102,8 +102,8 @@ sub build {
     say 'Detected link list: '   . join ' ', grep {$_ ne '--link'} @links;
     say '';
 
-    my @alien_deps = map {; '-M' => $_} @{$self->{alien_deps}};
-    say 'Detected alien list: '  . join ' ', sort @{$self->{alien_deps}};
+    my @alien_deps = map {; '-M' => $_} uniq @{$self->{alien_deps}};
+    say 'Detected alien list: '  . join ' ', sort uniq @{$self->{alien_deps}};
     say '';
 
     my @command = (
