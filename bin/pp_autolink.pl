@@ -2,7 +2,7 @@ use 5.010;
 use warnings;
 use strict;
 
-our $VERSION = '2.06';
+our $VERSION = '2.07';
 
 use rlib;
 

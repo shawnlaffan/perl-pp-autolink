@@ -1,4 +1,7 @@
 Revision history for App::PP::Autolink
+2.07 20221115
+  - Add detected Aliens to the pp call (if they inherit from Alien::Base).
+    Needed to ensure the share dirs are packed (see Module::ScanDeps#13).
 
 2.06 20221115
   - Macs: Handle @rpath and @loader_path entries in dependency paths. GH#17
