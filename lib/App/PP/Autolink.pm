@@ -6,7 +6,7 @@ package App::PP::Autolink;
 
 use strict;
 use warnings;
-use 5.010;
+use 5.014;
 
 use Carp;
 use English qw / -no_match_vars /;
@@ -24,7 +24,7 @@ use Config;
 use Getopt::ArgvFile default=>1;
 use Getopt::Long qw / GetOptionsFromArray :config pass_through /;
 
-our $VERSION = '2.07';
+our $VERSION = '2.08';
 
 use constant CASE_INSENSITIVE_OS => ($^O eq 'MSWin32');
 
