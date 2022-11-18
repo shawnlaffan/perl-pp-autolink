@@ -102,8 +102,9 @@ sub build {
     say 'Detected link list: '   . join ' ', grep {$_ ne '--link'} @links;
     say '';
 
-    my @alien_deps = map {; '-M' => $_} uniq @{$self->{alien_deps}};
-    say 'Detected alien list: '  . join ' ', sort uniq @{$self->{alien_deps}};
+    my @aliens = uniq @{$self->{alien_deps}};
+    my @alien_deps = map {; '-M' => $_} @aliens;
+    say 'Detected aliens: '  . join ' ', sort @aliens;
     say '';
 
     my @command = (
@@ -272,7 +273,7 @@ sub _resolve_rpath_mac {
     my @lc_rpath_chunk;
     while (my $line = shift @results) {
         last if $line =~ /LC_/;  #  any other command
-	push @lc_rpath_chunk, $line;
+	      push @lc_rpath_chunk, $line;
     }
     my @paths
       = map {s/\s\(offset.+$//r}
@@ -287,7 +288,7 @@ sub _resolve_rpath_mac {
         $path = path($path, $target);
         if ($path->exists) {
             $path = $path->realpath->stringify;
-	    push @checked_paths, $path;
+            push @checked_paths, $path;
         }
     }
 
