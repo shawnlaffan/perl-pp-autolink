@@ -1,5 +1,8 @@
 Revision history for App::PP::Autolink
 
+2.09 20221119
+  - add hashbang line to pp_autolink.pl for EUMM to update on install 
+
 2.08 20221119
   - Set the minimum perl version to 5.14 so we can use s///r.
     We can revisit if earlier versions are shown to be needed.
