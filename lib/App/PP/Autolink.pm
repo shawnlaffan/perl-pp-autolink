@@ -153,10 +153,10 @@ sub get_autolink_list {
     #  what to skip for linux or mac?
     
     #  get all the DLLs in the path - saves repeated searching lower down
-    my @dll_files = File::Find::Rule->file()
-                            ->name( "*.$Config::Config{so}" )
-                            ->maxdepth(1)
-                            ->in( @exe_path );
+    my @dll_files
+      = map {$_->stringify}
+        map {path($_)->children ( qr /$Config::Config{so}$/)}
+        @exe_path;
 
     if (CASE_INSENSITIVE_OS) {
         @dll_files = map {lc $_} @dll_files;
@@ -250,7 +250,7 @@ sub get_autolink_list {
       MISSING:
         foreach my $file (uniq @missing) {
             next MISSING
-              if any {-e "$_/$file"} @system_paths;
+              if any {; -e "$_/$file"} @system_paths;
             push @missing2, $file;
         }
         
