@@ -56,7 +56,7 @@ jobs:
           perl -V > perlversion.txt
           #  change the checksum so we refresh the cache
           echo 'with shared Alien installs' >> perlversion.txt
-          echo '20220917' >> perlversion.txt
+          echo '20230319' >> perlversion.txt
           ls -l perlversion.txt
 
       #- name: clear cache
