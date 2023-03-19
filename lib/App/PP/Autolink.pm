@@ -140,8 +140,14 @@ sub get_autolink_list {
         #  blank entries
         #  and no longer extant folders 
         my $system_root = $ENV{SystemRoot} || $ENV{WINDIR};
-        @system_paths = grep {$_ and $_ =~ m|^\Q$system_root\E|i} @exe_path;
-        @exe_path     = grep {$_ and (-e $_) and $_ !~ m|^\Q$system_root\E|i} @exe_path;
+        @system_paths
+          = map {path($_)->stringify}  #  otherwise we hit issues on SP5.36
+            grep {$_ and $_ =~ m|^\Q$system_root\E|i}
+            @exe_path;
+        @exe_path
+          = map {path($_)->stringify}
+            grep {$_ and (-e $_) and $_ !~ m|^\Q$system_root\E|i}
+            @exe_path;
         #say "PATHS: " . join ' ', @exe_path;
     }
     #  what to skip for linux or mac?
@@ -172,7 +178,7 @@ sub get_autolink_list {
       $self->get_dep_dlls;
 
     if (CASE_INSENSITIVE_OS) {
-        @dlls = map {lc $_} @dlls;
+        @dlls = map {path ($_)->stringify} map {lc $_} @dlls;
     }
     #say join "\n", @dlls;
     
@@ -215,7 +221,7 @@ sub get_autolink_list {
             say 'no more DLLs';
             last DLL_CHECK;
         }
-                
+
         my @dll2;
         foreach my $file (@dlls) {
             next if $searched_for{$file};
@@ -564,14 +570,15 @@ sub get_dep_dlls {
         next ALIEN if !$package->isa ('Alien::Base');  
         say "Finding dynamic libs for $package";
         foreach my $path ($package->dynamic_libs) {
+    warn $path;
             $dll_hash{$path}++;
         }
         if ($package->install_type eq 'system') {
             push @$alien_sys_installs, $package->dynamic_libs;
         }
         push @{$self->{alien_deps}}, $package;
-    } 
-    
+    }
+
     my @dll_list = sort keys %dll_hash;
     return wantarray ? @dll_list : \@dll_list;
 }
