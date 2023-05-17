@@ -535,18 +535,18 @@ sub get_dep_dlls {
         
         foreach my $dll (grep {$_ =~ $RE_DLL_EXT} @uses) {
             my $dll_path = path($deps_hash->{$package}{file})->stringify;
+            my $inc_path;
             if ($dll_path =~ m/$inc_path_re/) {
-                my $inc_path = $1;
-                #  if the path is relative then we need to prepend the inc_path
-                $dll_path = path($dll)->is_absolute
-                    ? $dll
-                    : path ($inc_path, $dll)->stringify;
+                $inc_path = $1;
             }
             else {
-                #  fallback, get everything after /lib/
-                $dll_path =~ s|(?<=/lib/).+?$||;
-                $dll_path .= $dll;
+                #  fallback, get inc_path as all before /lib/
+                $inc_path = ($dll_path =~ s|(?<=/lib/).+?$||r);
             }
+            #  if the path is relative then we need to prepend the inc_path
+            $dll_path = path($dll)->is_absolute
+                ? $dll
+                : path ($inc_path, $dll)->stringify;
             #  We were getting double paths under SP 5.36.
             #  It should be fixed now but leave here just in case.
             if ($dll_path =~ /^\w:.+:/){
