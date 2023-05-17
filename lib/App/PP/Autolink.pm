@@ -503,7 +503,7 @@ sub get_dep_dlls {
         execute => !$no_execute_flag,
         cache_file => $cache_file,
     );
-    
+
     #my @lib_paths 
     #  = map {path($_)->absolute}
     #    grep {defined}  #  needed?
@@ -514,7 +514,7 @@ sub get_dep_dlls {
         map {path($_)->absolute}
         @INC;
 
-    my $paths = join '|', map {quotemeta} @lib_paths;
+    my $paths = join '|', map {quotemeta} map {path($_)->stringify} @lib_paths;
     my $inc_path_re = qr /^($paths)/i;
     #say $inc_path_re;
 
@@ -534,15 +534,24 @@ sub get_dep_dlls {
         next if !@uses;
         
         foreach my $dll (grep {$_ =~ $RE_DLL_EXT} @uses) {
-            my $dll_path = $deps_hash->{$package}{file};
-            #  Remove trailing component of path after /lib/
+            my $dll_path = path($deps_hash->{$package}{file})->stringify;
             if ($dll_path =~ m/$inc_path_re/) {
-                $dll_path = $1 . '/' . $dll;
+                my $inc_path = $1;
+                #  if the path is relative then we need to prepend the inc_path
+                $dll_path = path($dll)->is_absolute
+                    ? $dll
+                    : path ($inc_path, $dll)->stringify;
             }
             else {
                 #  fallback, get everything after /lib/
                 $dll_path =~ s|(?<=/lib/).+?$||;
                 $dll_path .= $dll;
+            }
+            #  We were getting double paths under SP 5.36.
+            #  It should be fixed now but leave here just in case.
+            if ($dll_path =~ /^\w:.+:/){
+                warn "Fixing double dir path: $dll_path}";
+                $dll_path =~ s/^.+(.):/$1:/;
             }
             #say $dll_path;
             croak "either cannot find or cannot read $dll_path "
@@ -570,7 +579,7 @@ sub get_dep_dlls {
         next ALIEN if !$package->isa ('Alien::Base');  
         say "Finding dynamic libs for $package";
         foreach my $path ($package->dynamic_libs) {
-    warn $path;
+    # warn $path;
             $dll_hash{$path}++;
         }
         if ($package->install_type eq 'system') {
