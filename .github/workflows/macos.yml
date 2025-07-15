@@ -20,7 +20,7 @@ jobs:
     runs-on: macOS-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Probe wd
         run: |
@@ -137,7 +137,7 @@ jobs:
           unzip -l checkpp | grep dylib
         
       - name: Upload checkpp artefact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: checkpp
           #path: ${DMG_FILE_NAME}

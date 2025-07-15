@@ -32,7 +32,7 @@ jobs:
       image: perl:${{ matrix.perl-version }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Probe wd
         run: |
@@ -125,7 +125,7 @@ jobs:
           unzip -l checkpp | grep '.so'
         
       - name: Upload checkpp artefact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: checkpp
           #path: ${DMG_FILE_NAME}
