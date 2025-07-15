@@ -521,6 +521,11 @@ sub get_dep_dlls {
         if ($details->{key} =~ m{^Alien/.+\.pm$}) {
             push @aliens, $package;
         }
+        elsif ($details->{key} =~ m{^Gtk}) {
+            #  we need to check the pixbuf loaders
+            my @pixbuf_loaders = $self->process_gdk_pixbuf_loaders;
+            push @uses, @pixbuf_loaders;
+        }
 
         push @uses, $package
           if $details->{file} =~ $RE_DLL_EXT;
@@ -586,6 +591,30 @@ sub get_dep_dlls {
     return wantarray ? @dll_list : \@dll_list;
 }
 
+sub process_gdk_pixbuf_loaders {
+    my ($self) = @_;
+
+    say 'Scanning gdk-pixbuf-query-loaders result';
+
+    my $ql = which 'gdk-pixbuf-query-loaders';
+    my $pixbuf_parent_path = path ($ql)->parent->parent;
+
+    my @res =
+        map {path $_}
+            grep {$_ =~ /$RE_DLL_EXT$/}
+                grep {$_ !~ /#/}
+                    map {s/"//gr}
+                        map {s/\s*//gr}
+                            qx /gdk-pixbuf-query-loaders/;
+
+    foreach my $path (@res) {
+        #  are we relative to pixbuf-loader?
+        if (!$path->is_absolute) {
+            $path = path ($pixbuf_parent_path, $path);
+        }
+    }
+    return @res;
+}
 
 1;
 
