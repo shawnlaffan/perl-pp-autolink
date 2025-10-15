@@ -374,7 +374,7 @@ sub get_autolink_list_macos {
 
     @libs_to_pack = sort @libs_to_pack;
     
-    say STDERR 'Macos libs to pack: ' . join ' ', @libs_to_pack;
+    say STDERR 'Macos libs to pack: ' . join "\n", @libs_to_pack;
     
     return wantarray ? @libs_to_pack : \@libs_to_pack;
 }
