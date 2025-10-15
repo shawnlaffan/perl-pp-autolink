@@ -108,6 +108,11 @@ sub build {
     say 'Detected aliens: '  . join ' ', sort @aliens;
     say '';
 
+    if ($self->{found_gtk}) {
+        say 'Detected a Gtk version, packing extra components';
+
+    }
+
     my @command = (
         'pp',
         @links,
@@ -369,6 +374,8 @@ sub get_autolink_list_macos {
 
     @libs_to_pack = sort @libs_to_pack;
     
+    say STDERR 'Macos libs to pack: ' . join ' ', @libs_to_pack;
+    
     return wantarray ? @libs_to_pack : \@libs_to_pack;
 }
 
@@ -521,7 +528,8 @@ sub get_dep_dlls {
         if ($details->{key} =~ m{^Alien/.+\.pm$}) {
             push @aliens, $package;
         }
-        elsif ($details->{key} =~ m{^Gtk}) {
+        elsif ($details->{key} =~ m{^Gtk} and !$self->{found_gtk}) {
+            $self->{found_gtk}++;  #  scan once
             #  we need to check the pixbuf loaders
             my @pixbuf_loaders = $self->process_gdk_pixbuf_loaders;
             push @uses, @pixbuf_loaders;
