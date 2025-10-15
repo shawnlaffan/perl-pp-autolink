@@ -26,6 +26,8 @@ use Getopt::Long qw / GetOptionsFromArray :config pass_through /;
 
 our $VERSION = '2.12';
 
+local $| = 1;
+
 use constant CASE_INSENSITIVE_OS => ($^O eq 'MSWin32');
 
 my $RE_DLL_EXT = qr/\.$Config::Config{so}$/i;
@@ -100,7 +102,7 @@ sub build {
       say "No alien system dlls detected\n";
     }
 
-    say 'Detected link list: '   . join ' ', grep {$_ ne '--link'} @links;
+    say 'Detected link list: '   . join "\n  ", grep {$_ ne '--link'} @links;
     say '';
 
     my @aliens = uniq @{$self->{alien_deps}};
@@ -374,7 +376,7 @@ sub get_autolink_list_macos {
 
     @libs_to_pack = sort @libs_to_pack;
     
-    say STDERR 'Macos libs to pack: ' . join "\n", @libs_to_pack;
+    say 'Macos libs to pack: ' . join "\n", @libs_to_pack;
     
     return wantarray ? @libs_to_pack : \@libs_to_pack;
 }
