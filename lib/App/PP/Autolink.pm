@@ -362,9 +362,9 @@ sub get_autolink_list_macos {
             }
             next if $seen{$dylib};
             next if $dylib =~ m{^/System};  #  skip system libs
-            #next if $dylib =~ m{^/usr/lib/system};
+            next if $dylib =~ m{^/usr/lib/system};
             next if $dylib =~ m{^/usr/lib/libSystem};
-            next if $dylib =~ m{^/usr/lib/};
+            #next if $dylib =~ m{^/usr/lib/};
             next if $dylib =~ m{\Qdarwin-thread-multi-2level/auto/share/dist/Alien\E};  #  another alien
             say "adding $dylib for $lib";
             push @libs_to_pack, $dylib;
