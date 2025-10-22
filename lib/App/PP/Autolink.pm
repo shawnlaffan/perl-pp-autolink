@@ -360,7 +360,10 @@ sub get_autolink_list_macos {
                 my $orig_name = $dylib;
 		$dylib = _resolve_loader_path_mac($lib, $dylib);
             }
+
             next if $seen{$dylib};
+            $seen{$dylib}++;
+            
             next if $dylib =~ m{^/System};  #  skip system libs
             next if $dylib =~ m{^/usr/lib/system};
             next if $dylib =~ m{^/usr/lib/libSystem};
@@ -368,7 +371,6 @@ sub get_autolink_list_macos {
             next if $dylib =~ m{\Qdarwin-thread-multi-2level/auto/share/dist/Alien\E};  #  another alien
             say "adding $dylib for $lib";
             push @libs_to_pack, $dylib;
-            $seen{$dylib}++;
             #  add this dylib to the search set
             push @target_libs, $dylib;
         }
