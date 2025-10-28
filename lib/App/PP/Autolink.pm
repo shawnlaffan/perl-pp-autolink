@@ -589,6 +589,9 @@ sub process_gdk_pixbuf_loaders {
     say 'Scanning gdk-pixbuf-query-loaders result';
 
     my $ql = which 'gdk-pixbuf-query-loaders';
+
+    return if !$ql;
+
     my $pixbuf_parent_path = path ($ql)->parent->parent;
 
     my @res =
