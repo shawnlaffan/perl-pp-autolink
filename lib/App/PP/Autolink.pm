@@ -257,8 +257,12 @@ sub get_autolink_list {
         }
         
         if (@missing2) {
-            say STDERR "\nUnable to locate these DLLS, packed script might not work: "
-                     . join  ' ', sort {$a cmp $b} @missing2;
+            say STDERR
+                "\nUnable to locate these DLLS, packed script might not work: "
+                . join  ' ',
+                    sort {$a cmp $b}
+                        grep {$_ !~ /api-ms-win-crt-/}
+                            @missing2;
             say '';
         }
     }
