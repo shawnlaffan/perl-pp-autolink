@@ -246,7 +246,7 @@ sub get_autolink_list {
     }
     
     my @l2 = sort keys %full_list;
-    
+
     if (@missing) {
         my @missing2;
       MISSING:
@@ -442,7 +442,29 @@ sub get_autolink_list_ldd {
     }
 
     @libs_to_pack = sort @libs_to_pack;
-    
+
+    #  convoluted...
+    my %basename_count;
+    $basename_count{$_}++ for map {path($_)->basename} @libs_to_pack;
+    my @toomany = grep {$basename_count{$_} > 1} sort keys %basename_count;
+    say '=====' . join ' ', @toomany;
+    if (@toomany) {
+        warn "The following libs are referenced several times from different paths. "
+            . "There may be issues with the packed executable unless they have the same ABI";
+        warn join ' ', @toomany;
+        my %dups;
+        foreach my $dup (@libs_to_pack) {
+            my $basename = path ($dup)->basename;
+            next if $basename_count{$dup} < 2;
+            my $aref = $dups{$basename} //= [];
+            push @$aref, $dup;
+        }
+        foreach my $aref (values %dups) {
+            warn join ' ', @$aref;
+        }
+    }
+
+
     return wantarray ? @libs_to_pack : \@libs_to_pack;
 }
 
