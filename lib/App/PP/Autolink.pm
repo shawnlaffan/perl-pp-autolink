@@ -406,7 +406,7 @@ sub get_autolink_list_ldd {
         my $basename = path($lib)->basename;
         # say "Basename is $basename";
         if ($seen_basename{$basename}) {
-            say "Double scanning of $basename - this could lead to packing issues";
+            say "Double scanning of $basename via $lib - this could lead to packing issues";
         }
         $seen_basename{$basename}++;
 
