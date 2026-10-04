@@ -121,7 +121,7 @@ jobs:
           perl -MList::Util -E'say List::Util::first {$_} (1..10)'
           #  do we pack libproj?
           #find /usr/local/Cellar -name libproj.dylib -print
-          export libproj=`find /usr/local/Cellar -name libproj.dylib -print`
+          export libproj=`find ${HOMEBREW_PREFIX}/Cellar -name libproj.dylib -print`
           echo LIBPROJ is at $libproj
           perl bin/pp_autolink.pl --link $libproj -o checkpp tester.pl
           echo Running checkpp dynamic libs check

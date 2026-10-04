@@ -246,7 +246,7 @@ sub get_autolink_list {
     }
     
     my @l2 = sort keys %full_list;
-    
+
     if (@missing) {
         my @missing2;
       MISSING:
@@ -257,8 +257,12 @@ sub get_autolink_list {
         }
         
         if (@missing2) {
-            say STDERR "\nUnable to locate these DLLS, packed script might not work: "
-                     . join  ' ', sort {$a cmp $b} @missing2;
+            say STDERR
+                "\nUnable to locate these DLLS, packed script might not work: "
+                . join  ' ',
+                    sort {$a cmp $b}
+                        grep {$_ !~ /api-ms-win-crt-/}
+                            @missing2;
             say '';
         }
     }
@@ -315,8 +319,9 @@ sub _resolve_loader_path_mac {
 
 sub get_autolink_list_macos {
     my ($self) = @_;
-    
-    my $argv_linkers = $self->{argv_linkers};
+
+    #  sometimes flags creep in
+    my @argv_linkers = grep {$_ !~ /^-/} @{$self->{argv_linkers} // []};
 
     my $OTOOL = which('otool')  or die "otool not found";
     
@@ -325,13 +330,18 @@ sub get_autolink_list_macos {
     my %seen;
 
     my @target_libs = (
-        @$argv_linkers,
+        @argv_linkers,
         @bundle_list,
         #'/usr/local/opt/libffi/lib/libffi.6.dylib',
         #($pixbuf_query_loader,
         #find_so_files ($gdk_pixbuf_dir) ) if $pack_gdkpixbuf,
     );
     while (my $lib = shift @target_libs) {
+        next if $lib =~ /^\s*$/;  #  we get some empty libs via aliens
+        if (!-e $lib) {
+            warn qq{Cannot locate file "$lib"};
+            next;
+        }
         say "otool -L $lib";
         my @lib_arr = qx /otool -L $lib/;
         warn qq["otool -L $lib" failed\n]
@@ -380,6 +390,7 @@ sub get_autolink_list_ldd {
     my @bundle_list = $self->get_dep_dlls;
     my @libs_to_pack;
     my %seen;
+    my %seen_basename;
     
     my $RE_skip = $self->get_ldd_skipper_regexp;
 
@@ -397,7 +408,15 @@ sub get_autolink_list_ldd {
         my $out = qx /ldd $lib/;
         warn qq["ldd $lib" failed\n]
           if not $? == 0;
-        
+
+        my $basename = path($lib)->basename;
+        # say "Basename is $basename";
+        if ($seen_basename{$basename}) {
+            say "Double scanning of $basename via $lib - this could lead to packing issues";
+        }
+        $seen_basename{$basename}++;
+
+
         #  much of this logic is from PAR::Packer
         #  https://github.com/rschupp/PAR-Packer/blob/04a133b034448adeb5444af1941a5d7947d8cafb/myldr/find_files_to_embed/ldd.pl#L47
         my %dlls = $out =~ /^ \s* (\S+) \s* => \s* ( \/ \S+ ) /gmx;
@@ -413,6 +432,13 @@ sub get_autolink_list_ldd {
             $seen{$name}++;
 
             my $path = path($dlls{$name})->realpath;
+
+            my $basename = path($dlls{$name})->basename;
+            # say "Basename is $basename";
+            if ($seen_basename{$basename}) {
+                say "Double scanning of $basename via $path - this could lead to packing issues";
+            }
+            $seen_basename{$basename}++;
             
             #say "Checking $name => $path";
             
@@ -423,12 +449,12 @@ sub get_autolink_list_ldd {
             elsif (
                  #$path =~ m{^(?:/usr)?/lib(?:32|64)?/}  #  system lib
                  $path =~ $RE_skip
-              or $path =~ m{\Qdarwin-thread-multi-2level/auto/share/dist/Alien\E}  #  alien in share
+              or $path =~ m{\Q/auto/share/dist/Alien\E}  #  alien in share
               or $name =~ m{^lib(?:c|gcc_s|stdc\+\+)\.}  #  should already be packed?
               ) {
                 #say "skipping $name => $path";
                 #warn "re1" if $path =~ m{^(?:/usr)?/lib(?:32|64)/};
-                #warn "re2" if $path =~ m{\Qdarwin-thread-multi-2level/auto/share/dist/Alien\E};
+                #warn "re2" if $path =~ m{\Q/auto/share/dist/Alien\E};
                 #warn "re3" if $name =~ m{^lib(?:gcc_s|stdc\+\+)\.};
                 delete $dlls{$name};
             }
@@ -438,7 +464,29 @@ sub get_autolink_list_ldd {
     }
 
     @libs_to_pack = sort @libs_to_pack;
-    
+
+    # #  convoluted...
+    # my %basename_count;
+    # $basename_count{$_}++ for map {path($_)->basename} @libs_to_pack;
+    # my @toomany = grep {$basename_count{$_} > 1} sort keys %basename_count;
+    # say '=====' . join ' ', @toomany;
+    # if (@toomany) {
+    #     warn "The following libs are referenced several times from different paths. "
+    #         . "There may be issues with the packed executable unless they have the same ABI";
+    #     warn join ' ', @toomany;
+    #     my %dups;
+    #     foreach my $dup (@libs_to_pack) {
+    #         my $basename = path ($dup)->basename;
+    #         next if $basename_count{$dup} < 2;
+    #         my $aref = $dups{$basename} //= [];
+    #         push @$aref, $dup;
+    #     }
+    #     foreach my $aref (values %dups) {
+    #         warn join ' ', @$aref;
+    #     }
+    # }
+
+
     return wantarray ? @libs_to_pack : \@libs_to_pack;
 }
 
