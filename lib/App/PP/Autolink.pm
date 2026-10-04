@@ -75,6 +75,12 @@ sub new {
 sub build {
     my ($self) = @_;
 
+    local $ENV{PAR_PACKING} = 1
+        if not exists $ENV{PAR_PACKING};
+    #  for my own project, and since I'm the maintainer of both...
+    local $ENV{BDV_PP_BUILDING} = 1
+        if not exists $ENV{BDV_PP_BUILDING};
+
     #  reassemble the arg list
     my $argv_linkers = $self->{argv_linkers};
     my $args_array   = $self->{args_to_pass_to_pp};
