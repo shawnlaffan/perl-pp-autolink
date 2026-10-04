@@ -125,7 +125,7 @@ jobs:
           unzip -l checkpp | grep '.so'
         
       - name: Upload checkpp artefact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: checkpp
           #path: ${DMG_FILE_NAME}
