@@ -336,6 +336,11 @@ sub get_autolink_list_macos {
         #find_so_files ($gdk_pixbuf_dir) ) if $pack_gdkpixbuf,
     );
     while (my $lib = shift @target_libs) {
+        next if $lib =~ /^\s*$/;  #  we get some empty libs via aliens
+        if (!-e $lib) {
+            warn qq{Cannot locate file "$lib"};
+            next;
+        }
         say "otool -L $lib";
         my @lib_arr = qx /otool -L $lib/;
         warn qq["otool -L $lib" failed\n]
