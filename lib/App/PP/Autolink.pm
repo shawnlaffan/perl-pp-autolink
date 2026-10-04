@@ -319,8 +319,9 @@ sub _resolve_loader_path_mac {
 
 sub get_autolink_list_macos {
     my ($self) = @_;
-    
-    my $argv_linkers = $self->{argv_linkers};
+
+    #  sometimes flags creep in
+    my @argv_linkers = grep {$_ !~ /^-/} @{$self->{argv_linkers} // []};
 
     my $OTOOL = which('otool')  or die "otool not found";
     
@@ -329,7 +330,7 @@ sub get_autolink_list_macos {
     my %seen;
 
     my @target_libs = (
-        @$argv_linkers,
+        @argv_linkers,
         @bundle_list,
         #'/usr/local/opt/libffi/lib/libffi.6.dylib',
         #($pixbuf_query_loader,
