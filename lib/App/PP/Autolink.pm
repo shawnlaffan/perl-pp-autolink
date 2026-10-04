@@ -24,7 +24,7 @@ use Config;
 use Getopt::ArgvFile default=>1;
 use Getopt::Long qw / GetOptionsFromArray :config pass_through /;
 
-our $VERSION = '2.14';
+our $VERSION = '2.15';
 
 use constant CASE_INSENSITIVE_OS => ($^O eq 'MSWin32');
 
@@ -748,6 +748,13 @@ The PP_OPTS environment variable, used by L<pp>, is ignored.
 Since all pp_autolink does is wrangle dynamic libs and then add them to a pp call,
 it will still be used for the final executable. 
 
+=item PAR_PACKING
+
+This is set to a true value if it does not already exist.  Called code can
+then use it to conditionally load modules that are otherwise missed by PAR::Packer.
+Several C<Encode::*> modules are a case in point.   These are loaded when needed,
+and this is often not the case on a build machine.
+Or one could run code to ensure features are triggered and thus packed.
 
 =back
 
