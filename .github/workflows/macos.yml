@@ -63,7 +63,7 @@ jobs:
       #  run: rm ~/perl5/${{ runner.os }}-build-${{ hashFiles('perlversion.txt') }}
 
       - name: Cache CPAN modules
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         with:
           path: ~/perl5
           key: ${{ runner.os }}-build-${{ hashFiles('perlversion.txt') }}
